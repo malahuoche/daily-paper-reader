@@ -1,0 +1,401 @@
+Title: From Horizontal to Rotated: Cross-View Object Geo-Localization with Orientation Awareness
+
+URL Source: https://arxiv.org/pdf/2603.14856v1
+
+Published Time: Tue, 17 Mar 2026 03:07:20 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+# From Horizontal to Rotated: Cross-View Object Geo-Localization with Orientation Awareness 
+
+## Chenlin Fu, Ao Gong, Yingying Zhu *
+
+## College of Computer Science and Software Engineering, Shenzhen University, China 
+
+fuchenlin2021@email.szu.edu.cn, 2410103027@mails.szu.edu.cn, zhuyy@szu.edu.cn 
+
+## Abstract 
+
+Cross-View object geo-localization (CVOGL) aims to precisely determine the geographic coordinates of a query object from a ground or drone perspective by referencing a satellite map. Segmentation-based approaches offer high precision but require prohibitively expensive pixel-level an-notations, whereas more economical detection-based meth-ods suffer from lower accuracy. This performance disparity in detection is primarily caused by two factors: the poor geometric fit of Horizontal Bounding Boxes (HBoxes) for oriented objects and the degradation in precision due to feature map scaling. Motivated by these, we propose lever-aging Rotated Bounding Boxes (RBoxes) as a natural ex-tension of the detection-based paradigm. RBoxes provide a much tighter geometric fit to oriented objects. Build-ing on this, we introduce OSGeo, a novel geo-localization framework, meticulously designed with a multi-scale per-ception module and an orientation-sensitive head to ac-curately regress RBoxes. To support this scheme, we also construct and release CVOGL-R, the first dataset with pre-cise RBox annotations for CVOGL. Extensive experiments demonstrate that our OSGeo achieves state-of-the-art per-formance, consistently matching or even surpassing the ac-curacy of leading segmentation-based methods but with an annotation cost that is over an order of magnitude lower. 
+
+## 1. Introduction 
+
+Cross-View Object Geo-Localization (CVOGL) is the task of pinpointing the geographic location of a query object from a ground or drone query image, using a georeferenced satellite image as a global map (see Fig. 1(a)). This tech-nique effectively aligns the local perspective of the query with the global overview from the satellite, thereby pro-viding a clear visual context of the query object relative to its surrounding environment. Its significance is particularly pronounced in scenarios where GPS signals are obstructed 
+
+> *
+
+Corresponding author. Query Image with Click Point Reference Image             
+
+> Detection-based
+> Ground-view Image Drone-view Image Satellite-view Image
+> Low cost &Low accuracy
+> HBox-based
+> Low cost &Middle accuracy Low cost &High accuracy
+> RBox-based (ours)
+> Click Point: (142,144)
+> High cost &High accuracy
+> Retrieval-based Segmentation-based
+> Click Point: (393,91) GPS: (41.9312 °, -87.6772 °)
+> Coverage Area: 300 ×300 m²
+> (a) Cross-View Object Geo-Localization Task
+> (b) Comparison of the Proposed Scheme with Existing Schemes
+
+Figure 1. Illustration of the CVOGL task and a comparison of solution paradigms. (a) The Cross-View Object Geo-Localization (CVOGL) Task: A query object, indicated by a click point (red dot) in a drone or ground-view image, is to be precisely localized on a georeferenced satellite image. (b) Comparison of Localiza-tion Granularity: We compare four paradigms. Retrieval-based: 
+
+Matches to a coarse grid cell. HBox-based (Detection): Local-izes with a loose, axis-aligned Horizontal Bounding Box (HBox). 
+
+RBox-based (Ours): Localizes with a tight, oriented Rotated Bounding Box (RBox). Segmentation-based: Localizes with a pixel-perfect (but costly) mask. 
+
+or perturbed by noise, where it offers an alternative means for geo-localization. Consequently, CVOGL holds substan-tial value in domains such as smart city management, disas-ter monitoring, and autonomous navigation [1, 5, 7, 25, 34]. As illustrated in Fig. 1(b), existing approaches to CVOGL have diverged into three main paradigms: retrieval-based, detection-based, and segmentation-based methods. The earliest retrieval-based approaches [2, 9, 14, 20, 27, 37] localize query objects by matching them to a coarse grid of satellite patches. While computation-ally efficient, their localization precision is inherently lim-ited by the grid granularity. Subsequent detection-based 
+
+> arXiv:2603.14856v1 [cs.CV] 16 Mar 2026
+
+methods [13, 22, 36] refined this by introducing Horizon-tal Bounding Box (HBox) representations, improving preci-sion with only modest annotation costs. More recently, the segmentation-based TROGeo [35] has achieved the highest localization accuracy by producing pixel-level segmenta-tion, but this comes at a prohibitive annotation cost approx-imately 15 times [10, 16, 21] higher than bounding boxes, creating a significant barrier to scalability. This sharp trade-off between precision and cost mo-tivates a critical re-examination of the task’s fundamen-tal requirements. While segmentation-based TROGeo [35] achieves the highest precision, this accuracy comes at a pro-hibitive annotation cost. We argue that this cost is largely disproportionate to the core objective of CVOGL. Crucially, the primary goal is to determine an object’s geographic co-ordinates typically its center point, rather than the precise location of every pixel on its silhouette. The substantial effort and expense required for pixel-level supervision can therefore be considered a form of ”overkill” relative to this pragmatic goal. This precision-cost dilemma, therefore, ne-cessitates a new solution that can retain high accuracy with-out the prohibitive expense of mask-level supervision. To devise a solution that retains high accuracy while re-ducing annotation cost, it is crucial to analyze the sources of this performance disparity. The superior performance of the segmentation-based method is largely attributed to its pixel-level supervision, which grants it distinct advantages in both precise boundary delineation and faithful scale representation . Conversely, while more cost-efficient, ex-isting detection-based approaches suffer from two funda-mental limitations. The first and critical factor is the poor geometric fit of HBox for oriented objects. As depicted in Fig. 1(b), HBox, designed for axis-aligned shapes, inher-ently fails to encase oriented objects tightly. This mismatch introduces substantial background noise, which degrades network optimization and hinders accurate positioning. The second factor stems from the inherent architectural limita-tions of detection-based models, where the final location is regressed from a single down-sampled feature map, leading to spatial quantization that limits precision. Motivated by these insights, we propose a paradigm shift that directly confronts both limitations. First, to solve the geometric inadequacy of HBoxes, we advocate for leverag-ing Rotated Bounding Boxes (RBoxes). As illustrated in Fig. 1(b), RBoxes provide a much tighter geometric fit to oriented objects, significantly reducing background noise and enabling a more faithful representation. Building on this, we introduce OSGeo, a novel Orientation-Sensitive Geo-localization framework. OSGeo is specifically engi-neered with a multi-scale perception module to address scale variance and an orientation-sensitive head designed for superior geometric fitting. To facilitate this new RBox-based paradigm, we also construct and release CVOGL-R, the first benchmark dataset meticulously re-annotated with precise RBoxes. This holistic approach allows OSGeo to achieve precision that is not only comparable to but of-ten surpasses that of leading segmentation-based methods, thereby resolving the critical trade-off between accuracy and annotation cost. Our contributions can be summarized as follows: • We introduce and validate a new RBox-based paradigm for CVOGL, which resolves the critical precision-cost dilemma by proposing a ”sweet spot” that avoids the ge-ometric inadequacy of HBoxes and the ”overkill” of seg-mentation’s high annotation cost. To facilitate and bench-mark this new paradigm, we also construct and release CVOGL-R, the first benchmark dataset meticulously re-annotated with precise RBoxes. • We propose OSGeo, a novel framework explicitly engi-neered to realize the RBox paradigm’s potential. Its com-ponents, including a multi-scale perception module and an orientation-sensitive head, are designed to directly ad-dress the key limitations (feature map scaling and geo-metric fit of previous detection-based methods. • Through extensive experiments, our OSGeo framework achieves state-of-the-art performance. Crucially, our OS-Geo achieves localization precision that is comparable to, and often surpasses, leading segmentation-based method, but with a dramatically lower annotation cost. 
+
+## 2. Related Work 
+
+2.1. Cross-View Object Geo-Localization 
+
+Retrieval-Based. The initial works for cross-view object geo-localization treat the task as a fine-grained image re-trieval problem [9, 15, 24]. These methods involve dividing the satellite map into a grid of uniform patches to find the one with the highest feature similarity to the query object [2, 14, 20, 27, 37]. However, its precision is fundamentally restricted by the fixed grid structure. The coarse granularity of these predefined patches limits localization accuracy and fails to accommodate significant variations in object size. 
+
+Segmentation-Based. In pursuit of higher precision, TROGeo [35] proposes a cross-view object segmentation (CVOS) scheme to reformulate cross-view object geo-localization, which uses segmentation masks to define ob-jects for fine-grained object geo-localization. Despite the high precision of this paradigm, it faces a significant bottle-neck related to data acquisition. 
+
+Detection-Based. Detection-based methods [13, 22, 36] of-fer a more pragmatic alternative by defining object locations with horizontal bounding boxes (HBox). These methods exhibit greater flexibility, as they can be augmented with class-agnostic segmentation models like SAM [11] to gen-erate fine-grained masks without requiring dedicated seg-mentation datasets. We unlock the potential of detection-based approaches by incorporating object orientation and multi-scale features, achieving performance comparable to segmentation-based methods. 
+
+2.2. Oriented Object Detection 
+
+Oriented object detection constitutes a fine-grained per-ception task characterized by diverse methodological paradigms. Initial efforts focus on architectural design, progressing from anchor-based [18] and two-stage meth-ods [3, 4, 26] to anchor-free frameworks [23]. Subse-quently, a significant body of work addresses the fundamen-tal challenge of angle periodicity. Solutions include design-ing specialized loss functions [19], developing boundary-free angle-coding schemes [28, 29, 33], and modeling the rotated bounding box (RBox) with Gaussian distributions [30, 31]. In parallel, an alternative line of research utilizes representative point sets to define object boundaries, as ex-emplified by RepPoints [8, 12, 32]. We draw inspiration from these methods, utilizing its precise localization capabilities to address the geometric in-adequacy of HBoxes in cross-view object geo-localization. 
+
+## 3. Methodology 
+
+3.1. Why Rotated Bounding Boxes 
+
+To motivate our approach, we first highlight three critical failures of the standard Horizontal Bounding Box (HBox) representation in CVOGL. First , as illustrated in the top row of Fig. 2(a), a predicted bounding box can achieve a high IoU with the GT HBox while failing to localize the ac-tual rotated object, resulting in a near-zero IoU with its cor-responding rotated RBox. This discrepancy has a profound quantitative impact. When re-evaluated using the more pre-cise RBox criterion, the performance of DetGeo [22] on the Drone →Satellite test set plummets by a substantial 14.13% 
+
+in Acc@50, as detailed in Tab. 1. Second , HBoxes intro-duce severe ambiguity in dense scenes. The example in the bottom row of Fig. 2(a) shows adjacent objects with a high HBox IoU of 0.33 , complicating instance differentiation. In contrast, their RBoxes maintain a near-zero IoU, ensuring clear object separation. Finally , orientation is not an edge case but a ubiquitous feature in satellite imagery. Our statis-tical analysis reveals that 60.2% of instances in the bench-mark dataset are rotated, establishing orientation modeling as an essential component for accurate geo-localization. 
+
+3.2. OSGeo 
+
+Overview. In this section, we introduce our OSGeo. As illustrated in Fig. 3, OSGeo reframes the conventional detection-based approach by adopting a modular architec-ture. This architecture comprises four main stages: Pre-processing, Encoder, the Multi-Scale Cross-View Percep-tion (MCP) module, and a Geo-Localization Decode Head. (a) (b)       
+
+> IoU > 0.25 IoU < 0.25
+> IoU = 0.33 IoU = 0
+> Figure 2. Illustration of the necessity of RBoxes. The star denotes the object center. The red rectangle represents the predicted box, while the green rectangle denotes the ground truth box.
+
+The MCP module is specifically designed to mitigate pre-cision loss from feature down-sampling by fusing fea-tures across multiple scales. The Geo-Localization De-code Head, in turn, integrates two specialized sub-heads: an Orientation-Sensitive Geo-Localization Head and an HBox Geo-Localization Head. This dual-head design enables the framework to switch freely between horizontal and rota-tional regression. To optimize the latter, we also propose OS-Loss, an orientation-sensitive loss function carefully tailored for this purpose. Furthermore, the decoded bound-ing boxes can serve as effective prompts for the SAM [11], facilitating finer-grained segmentation. 
+
+3.2.1. Pre-Processing and Encoder Click Point Modeling. To construct an explicit spatial rep-resentation of the click point pc, we introduce a click rep-resentation map, denoted as P. Let the coordinate of the single click point be pc. For a query image Iq with a height 
+
+h and a width w, we define this map over a discrete grid. The value of the map for each grid element is computed as: 
+
+P(i, j ) = 
+
+
+
+1 − ∥z(i, j ) − pc∥2
+
+√h2 + w2
+
+2
+
+(1) where the indices (i, j ) span the entire image dimensions, with 0 ≤ i < h and 0 ≤ j < w , z(i, j ) represents the vector for the coordinate (i, j ), a three-dimensional visual-ization of this map is presented in Fig. 3. Subsequently, the generated map P is then channel-wise concatenated with the query image Iq , denoted as Ipq .
+
+Shared Backbone and Neck. The combined query tensor 
+
+Ipq , produced by the click point modeling, and the reference image Ir are concurrently processed through a shared fea-ture extraction encoder. This encoder consists of a ResNet-50 [6] backbone and a Feature Pyramid Network (FPN) [17] neck. Critically, the weights of this aforementioned encoder are shared for processing both the query and ref-erence inputs. This weight-sharing mechanism is essential for projecting the cross-view image pair into a common em-bedding space. The FPN then generates multi-scale feature maps, {F qk } and {F rk }, for the query and reference inputs, Query Image, Iq(w,h)                                          
+
+> Shared Backbone + Neck
+> Multi-ScaleCross-ViewPerception(MCP)Geo-LocalizationDecodeHead
+> Layer-wiseFusion
+> ReferenceImage,Ir
+> ClickPoint,PC:(192,109)
+> 𝐹 ௞
+> ௤
+> 𝐹 ௞
+> ௥
+> GAPNorm
+> ……
+> …
+> ClickPointModeling
+> 𝐏 𝑖 ,𝑗 =1−||𝐳 𝑖 ,𝑗 −𝐩 𝐜 ||ଶ
+> ℎଶ+𝑤 ଶ
+> ଶ
+> Pre-processingEncoder
+> Norm
+> 𝑔 ௞
+> ௤
+> Norm
+> 𝐹 ௞
+> ௥
+> 𝑔 ௞
+> ௤
+> 𝑔 ௞
+> ௤்⋅𝐹 ௞
+> ௥
+> 𝑖 ,𝑗
+> 𝐹 ෨𝐹 ௞
+> ௥
+> 𝐹 ෨{𝐹 ௞
+> ௥}
+> LabelAssignment
+> LabelAssignment
+> Orientation-SensitiveGeo-LocalizationHead
+> x4
+> x4
+> 𝑥 ௖
+> 𝑦 ௖
+> w
+> h
+> 𝜃
+> ℒ௖௡
+> ℒ௢
+> Scoresℒ௖
+> HboxGeo-LocalizationHead
+> x4
+> x4
+> 𝑥 ௖
+> 𝑦 ௖
+> w
+> h
+> ℒ௖௡
+> ℒூ௢௎
+> Scoresℒ௖
+> Output
+> Output
+> 𝐴 ௞⊙𝐹 ௞
+> ௥
+> 𝐴 ௞
+
+Figure 3. Overall architecture of our proposed OSGeo. The architecture consists of a Pre-processing for input preparation and click point modeling, an Encoder for feature extraction, an MCP for multi-scale feature fusion, and a Geo-Localization Decode Head for prediction. 
+
+respectively. The index k signifies the pyramid level, en-abling the model to represent objects at various scales effec-tively. Following the standard FPN architecture, we extract features from five levels, where k ∈ { 3, 4, 5, 6, 7}. Lev-els 3 through 5 originate from the ResNet backbone outputs with top-down connections, while levels 6 and 7 are derived by applying strided convolutions from the preceding level. The resulting sets of multi-scale features, {F qk } and {F rk },are then passed directly to the MCP. 
+
+3.2.2. Multi-Scale Cross-View Perception Module 
+
+A primary source of imprecision in existing detection-based methods is their reliance on heavily down-sampled feature maps for coordinate regression. This process of spatial quantization invariably discards fine-grained spatial infor-mation crucial for pinpoint localization. To address this limitation, we design the Multi-Scale Cross-View Percep-tion (MCP) module. The core function of the MCP module is to create a rich, multi-resolution feature representation by establishing interactions between the query and reference views at different levels of the feature hierarchy. This in-teraction is performed in a layer-by-layer manner across the corresponding multi-scale feature maps {F qk } and {F rk }.At each feature level k ∈ { 3, ..., 7}, the MCP refines the reference features F rk using guidance from the corre-sponding query features F qk . The entire query feature map 
+
+F qk ∈ RDk ×Hk ×Wk is first aggregated into a single global context vector. This is achieved by applying global average pooling (GAP) across its spatial dimensions. This global query vector gqk ∈ RDk encapsulates the holistic represen-tation of the query target at scale k.To measure the similarity between the global query con-text and every local region in the reference view, we com-pute an attention score map. First, both the global query vector gqk and each local feature vector F rk (i, j ) ∈ RDk
+
+from the reference map are L2-normalized. The score 
+
+sk(i, j ) at each spatial location (i, j ) is then computed as the dot product between the normalized vectors: 
+
+sk(i, j ) = (gqk)T
+
+|| gqk|| 2
+
+· F rk (i, j )
+
+|| F rk (i, j )|| 2
+
+(2) where 0 ≤ i < H k and 0 ≤ j < W k.The raw scores {sk(i, j )} are then normalized to a [0 , 1] 
+
+range to form a stable attention map Ak. This is accom-plished using min-max scaling applied across all spatial lo-cations for each sample in the batch: 
+
+Ak(i, j ) = sk(i, j ) − min( sk)max( sk) − min( sk) + ϵ (3) where min( sk) and max( sk) represent the minimum and maximum score values across the entire spatial map for level k, and ϵ is a small constant to prevent division by zero. This step yields the final attention map Ak ∈ R1×Hk ×Wk .Finally, the computed attention map Ak is used to modu-late the normalized original reference feature map F rk. The refined reference feature map, denoted as ˜F rk , is obtained through element-wise multiplication: 
+
+˜F rk = Ak ⊙ F rk (4) where ⊙ denotes the element-wise product, the resulting ˜F rk
+
+highlights the regions in the reference view that are most relevant to the global context of the query target. This attention mechanism is performed independently and in parallel for each feature level k ∈ { 3, ..., 7}. The final output from the MCP module is the complete set of re-fined, multi-scale reference features { ˜F rk }, which are then passed to the subsequent Geo-localization Decode Head. 3.2.3. Geo-Localization Decode Head 
+
+The Geo-Localization Decode Head processes the refined multi-scale features { ˜F rk } to produce the final prediction. 
+
+Orientation-Sensitive Geo-Localization Head. Inspired by FCOS [23], for each feature level k with stride sk, a location (i, j ) on the feature map ˜F rk is considered a positive sample if its corresponding location (im, j m) on the input image falls within any GT RBox. The mapping from feature map coordinates to image coordinates is defined as: 
+
+(im, j m) = 
+
+j sk
+
+2
+
+k
+
++ i · sk,
+
+j sk
+
+2
+
+k
+
++ j · sk
+
+
+
+(5) This strategy allows the network to learn from multiple pos-itive samples across different feature scales, which is not only beneficial for objects of varying sizes but also remedies the design limitations of single-positive-sample assignment in classic methods. The head utilizes two parallel branches to predict localization confidence and bounding box pa-rameters, respectively. For the regression, we employ our specifically designed Orientation-Sensitive Loss (OS-Loss), which is tailored for the geo-localization task. 
+
+HBox Geo-localization Head. To ensure a fair and comprehensive comparison with methods that operate on HBox, we also implement an interchangeable HBox Geo-Localization Head. This auxiliary head adopts a con-ventional anchor-based framework, where it assigns posi-tive samples based on the IoU between anchor boxes and ground-truth HBoxes. The optimization of the bounding box is guided by a standard IoU-based loss function. 
+
+SAM Prompt Segmentation. The outputs from either head can be seamlessly integrated with large foundation models. Specifically, the predicted boxes serve as effective prompts for the SAM [11]. Following the SPS from TROGeo [35], we leverage the remarkable zero-shot capability of SAM to achieve precise instance segmentation without requiring any segmentation-specific training or datasets. 
+
+3.2.4. Optimization Objective 
+
+The overall training objective L is combination of the re-gression Lreg , classification Lc, and center-ness Lcn . The formulation is as follows: 
+
+L = μ1
+
+Npos 
+
+X
+
+> l
+
+Lc(c∗ 
+
+> l
+
+, c l) + μ2
+
+Npos 
+
+X
+
+> l
+
+Lcn (cn ∗ 
+
+> l
+
+, cn l)+ μ3
+
+P cn pos 
+
+X
+
+> l
+
+1cl>0cn lLreg {B∗ 
+
+> l
+
+, B l}
+
+(6) where  Lc is the focal loss [18], and  Lcn  is cross-entropy loss. Npos denotes the number of positive samples. The re-gression loss Lreg is calculated using the standard IoU loss for the HBox regression. For the RBox regression, we intro-duce our novel Orientation-Sensitive Loss (OS-Loss). The hyperparameters μ1, μ2, and μ3 balance the contributions of these terms and are uniformly set to 1.0 in our experiments. G → S D → S         
+
+> Query Original Ours
+> Figure 4. Visualization of data annotation for cross-view object geo-localization. Click points are indicated by red dots in the query images. Green boxes indicate different annotation formats.
+
+Orientation-Sensitive Loss. To specifically address the challenges in cross-view object geo-localization, we design the Orientation-Sensitive Loss Lo to jointly optimize loca-tion and orientation. It is defined as: 
+
+Lo = LIoU (B∗ 
+
+> l
+
+, B l) + α · sigmoid (dc) + β · | sin(∆ θ)| (7) The OS-Loss enhances the standard LIoU with two crit-ical constraints. The first penalizes the Euclidean distance 
+
+dc between the predicted and GT box centers. The second, 
+
+| sin(∆ θ)|, can reflect the actual difference between the pre-dicted box and the GT box, even at the angle-defined bound-ary. The coefficients α and β balance these constraints. 
+
+3.3. CVOGL-R Dataset 
+
+To support our RBox-based scheme, we also introduce CVOGL-R dataset. The original CVOGL dataset relies on HBoxes, which, as shown in Fig. 4, cannot precisely cap-ture the geometry of oriented objects. To address this, we meticulously re-annotated the entire dataset with precise RBoxes. This process not only provides high-fidelity ori-entation labels but also corrects numerous misalignments in the original annotations. To quantify the cost-effectiveness, we tracked our annotation process: labeling a precise RBox took, on average, 9 seconds per instance. This is an order of magnitude faster than the pixel-level annotation required by segmentation-based TROGeo, and this cost is consistent with the widely accepted claim that “the cost of labeling a pixel-level segmentation annotation is about 15 times larger than labeling a bounding box” [21]. 
+
+## 4. Experiment 
+
+4.1. Datasets and Evaluation Metrics 
+
+CVOGL. The CVOGL[22] is a large-scale cross-view ob-ject geo-localization dataset, which uses HBox annotations for query objects. See supplementary material for details. 
+
+CVOGL-Seg. The CVOGL-Seg [35] extends CVOGL dataset by providing instance segmentation masks for all query instances. See supplementary material for details. Table 1. Performance comparison on the proposed CVOGL-R dataset. OSGeo-R is against retrieval (Ret.), detection (Det.), and segmen-tation (Seg.) based approaches. OST denotes TROGeo [35] leveraging segmentation tasks. The ∗ indicates baseline models adapted for RBox prediction. ♠ denotes our model equipped with a more powerful backbone. The best and second-best results are highlighted.                                                                                                                     
+
+> Method Drone →Satellite Ground →Satellite Validation Test Validation Test Acc@50 Acc@25 Acc@50 Acc@25 Acc@50 Acc@25 Acc@50 Acc@25
+> Ret.
+> L2LTR [27] 2.00% 24.32% 1.32% 21.84% 0.51% 4.99% 0.33% 4.76% TransGeo [37] 2.01% 21.48% 1.45% 20.12% 0.70% 5.03% 0.40% 6.53% SAFA [20] 2.39% 22.40% 1.51% 21.47% 0.71% 4.89% 0.41% 6.51% Sample4Geo [2] 6.07% 32.72% 5.34% 30.32% 0.76% 5.93% 0.72% 6.75%
+> Seg. TROGeo [35] 54.32% 71.38% 56.22% 74.21% 38.68% 47.11% 37.92% 49.31% TROGeo + OST [35] 55.58% 72.21% 56.53% 76.05% 40.09% 50.92% 38.75% 50.46%
+> Det.
+> DetGeo [22] 45.50% 57.04% 43.47% 57.04% 35.64% 46.26% 34.43% 44.91% DetGeo ∗[22] 47.35% 56.88% 50.26% 58.99% 39.87% 45.40% 41.83% 47.17% VAGeo [13] 48.65% 63.06% 49.02% 62.59% 38.57% 47.45% 36.79% 45.73% VAGeo ∗[13] 51.14% 61.76% 55.50% 64.23% 40.63% 48.10% 43.27% 48.41% OSGeo-R (ours) 68.36% 72.59% 73.48% 78.42% 48.75% 51.57% 50.36% 52.42% OSGeo-R ♠(ours) 69.01% 73.56% 74.31% 78.62% 49.40% 51.79% 51.39% 53.34%
+
+Table 2. Performance comparison on the standard CVOGL dataset, which utilizes HBox annotations.                                                                                                           
+
+> Method Drone →Satellite Ground →Satellite Validation Test Validation Test Acc@50 Acc@25 Acc@50 Acc@25 Acc@50 Acc@25 Acc@50 Acc@25
+> Ret.
+> L2LTR [27] 5.96% 38.68% 6.27% 38.95% 1.84% 12.24% 2.16% 10.69% TransGeo [37] 5.42% 34.78% 6.37% 35.05% 3.25% 21.67% 2.88% 21.17% SAFA [20] 6.39% 36.19% 6.58% 37.41% 3.25% 20.59% 3.08% 22.20% Sample4Geo [2] 16.25% 52.87% 18.40% 52.83% 4.33% 24.27% 5.24% 25.80%
+> Seg. TROGeo [35] 65.87% 72.38% 68.65% 74.31% 44.20% 48.86% 45.53% 49.44% TROGeo + OST [35] 66.63% 73.35% 68.96% 76.16% 46.59% 51.46% 46.56% 51.08%
+> Det.
+> DetGeo [22] 55.15% 59.81% 57.66% 61.97% 43.99% 46.70% 42.24% 45.43% VAGeo [13] 59.59% 64.25% 61.87% 66.19% 44.42% 47.56% 45.22% 48.21% HALO [36] 63.81% 70.21% 64.44% 71.53% 46.91% 50.81% 46.76% 51.59% OSGeo-H (ours) 66.52% 71.40% 69.27% 74.20% 47.24% 51.14% 47.69% 50.67% OSGeo-H ♠(ours) 68.15% 72.26% 72.25% 76.77% 49.30% 52.00% 48.30% 51.69%
+
+Evaluation Metrics. We follow the protocol from Zhang et al. [35] and use a comprehensive set of metrics to eval-uate segmentation quality. See supplementary material for details. 
+
+4.2. Implementation Details 
+
+Unless otherwise specified, our OSGeo model utilizes a ResNet-50 [6] backbone and is trained with identical hy-perparameters. See supplementary material for details. 
+
+4.3. Main Results 
+
+Our OSGeo model has two variants, differing in the head, 
+
+OSGeo-R for RBox prediction and OSGeo-H for HBox prediction. This dual configuration allows for comprehen-sive evaluation across datasets with either annotation type. 
+
+Results on CVOGL-R. We begin by establishing a new benchmark on our proposed CVOGL-R, as detailed in Tab. 1. Retrieval-based methods, including strong perform-ers like Sample4Geo [2], exhibit a significant performance decline. The operational mechanism of these models, rely-ing on matching coarse image grids, proves insufficient for the fine-grained precision required for RBox evaluation. Regarding segmentation and detection-based methods, we adopt the evaluation settings from TransGeo [37] to as-sess their performance on our dataset. TROGeo [35] shows competitive results, which are further improved by leverag-ing an auxiliary segmentation task (TROGeo + OST). For detection-based methods like DetGeo [22], we adapt them to predict RBoxes, denoted by DetGeo ∗. The DetGeo [22] achieves a 43.47% Acc@50 on the Drone →Satellite test set. When the architecture is modified to predict RBoxes, its accuracy rises substantially to 50.26% .Our OSGeo-R significantly outperforms all baseline methods across all metrics. On the Drone →Satellite test set, OSGeo-R achieves an accuracy of 73.48% Acc@50, surpassing the adapted DetGeo ∗ by a remarkable margin of 
+
+23.22% . It demonstrates the effectiveness of an architec-ture specifically designed to perceive object orientation and scale. Furthermore, when equipped with a more powerful backbone (denoted as OSGeo-R ♠), the performance of our model is further boosted to 74.31% , setting a new state-of-the-art in cross-view object geo-localization. The consistent and large improvements across both Drone →Satellite and Ground →Satellite subsets affirm the generalization and su-Table 3. Comparison with previous works on the CVOGL-Seg dataset. “+ SPS” means that SAM Prompt Stage (SPS) from TROGeo[35] is added to obtain the segmentation mask using the box output as a prompt. The best and second-best results are highlighted.                                                                                                                                                                       
+
+> Method Drone →Satellite Ground →Satellite Validation Test Validation Test mIoU ↑mDice ↑AAE ↓ME ↓mIoU ↑mDice ↑AAE ↓ME ↓mIoU ↑mDice ↑AAE ↓ME ↓mIoU ↑mDice ↑AAE ↓ME ↓
+> (%) (%) (m2)(m)(%) (%) (m2)(m)(%) (%) (m2)(m)(%) (%) (m2)(m)Sample4Geo [2] 16.83 25.41 3782.95 62.96 16.62 25.29 3910.25 57.49 5.30 8.56 3782.69 127.92 5.92 9.56 3910.39 128.81 Sample4Geo + SPS [2] 19.21 25.37 2270.92 62.51 18.67 24.83 2178.15 57.47 5.03 6.94 2403.32 128.58 6.26 8.57 2347.28 130.22 DetGeo [22] 30.81 39.40 2885.87 80.69 30.50 39.12 2517.70 85.35 25.77 32.65 2510.07 100.89 25.40 32.27 3005.94 103.71 DetGeo + SPS [22] 42.68 48.24 1096.89 80.19 42.27 47.98 1149.01 85.06 34.76 39.18 1229.54 100.46 34.04 38.69 1721.25 103.39 TROGeo + SPS [35] 55.54 62.80 762.15 49.22 56.59 64.24 927.00 50.45 38.79 43.76 1169.61 90.59 38.12 43.34 1126.56 95.02
+> OSGeo (ours) 48.98 57.67 1180.31 59.75 52.32 61.42 1116.23 48.73 35.75 41.93 1509.71 92.33 36.20 42.44 1666.67 96.05 OSGeo + SPS (ours) 54.46 61.18 782.74 59.42 57.20 64.60 772.24 48.46 39.47 44.26 1097.70 92.14 39.45 44.58 1290.60 95.78
+
+periority of our orientation-sensitive design. 
+
+Results on CVOGL. To make a fair comparison, we eval-uate OSGeo-H on the standard CVOGL dataset against existing methods. As presented in Tab. 2, our OSGeo-H establishes a new state-of-the-art among detection-based approaches, significantly outperforming prior meth-ods like HALO [36]. Most notably, OSGeo-H success-fully closes the performance gap with the segmentation-based method. On the Drone →Satellite test set, OSGeo-H achieves 69.27% Acc@50, surpassing the leading seg-mentation method TROGeo + OST [35] (68.96%), which relies on costly pixel-level annotations. This result com-pellingly demonstrates that our framework can deliver state-of-the-art localization precision without the prohibitive ex-pense of mask supervision. Furthermore, our enhanced OSGeo-H ♠ decisively outperforms all prior work, includ-ing segmentation-based solutions, across almost all metrics. 
+
+Results on CVOGL-Seg. For a fair comparison, we evaluate our model on the CVOGL-Seg dataset. Unlike conventional approaches that rely on expensive pixel-wise masks, our method is trained using only bounding box annotations. To enable segmentation, we integrate the SAM Prompt Stage (SPS) [35], which converts our pre-dicted boxes into segmentation masks. The results in Tab. 3 demonstrate that our OSGeo + SPS rivals the per-formance of the segmentation-based TROGeo. Specifically, on the Drone →Satellite test set, it surpasses all competitors, achieving a 57.20% mIoU and a 64.60% mDice, while also minimizing AAE of 772.24 m2 and ME of 48.46 m. This commanding performance is maintained on the more chal-lenging Ground →Satellite test set, where our model again secures top ranks with 39.45% mIoU and 44.58% mDice. These results validate that our approach, despite relying on significantly cheaper box-level supervision, not only rivals but also outperforms methods dependent on masks. 
+
+4.4. Analysis of Cost 
+
+Our experiments compellingly validate our RBox-based paradigm, which resolves the precision-cost dilemma. As quantified in Sec. 3.3, the RBox annotation cost is empir-ically minimal (avg.9 seconds per object), which we esti-mate to be an order of magnitude faster than pixel-level 
+
+Table 4. Ablation study on different components of OSGeo. Lo
+
+and LIoU represent the losses in Geo-Localization Decode Head.                                                     
+
+> MCP LoLIoU
+> Drone →Satellite Ground →Satellite Acc@75 Acc@50 Acc@25 Acc@75 Acc@50 Acc@25
+> ×××10.38% 50.26% 58.99% 8.94% 41.83% 47.17%
+> ×✓×31.86% 67.42% 74.00% 22.51% 44.09% 48.82%
+> ××✓29.91% 65.16% 72.87% 19.22% 43.17% 47.79%
+> ✓×✓36.07% 69.06% 75.64% 28.67% 47.56% 50.27%
+> ✓✓×42.24% 73.48% 78.42% 29.39% 50.36% 52.42%
+
+masks, a claim consistent with established literature [21]. Crucially, this low cost is not a compromise: Tab. 3 demon-strates that our OSGeo, trained only on low-cost boxes, sur-passes the performance of the segmentation-based TROGeo (trained on expensive masks) on the CVOGL-Seg bench-mark (e.g., 57.20% vs. 56.59% mIoU on Drone →Sat Test). Furthermore, Tab. 2 reinforces this by showing our OSGeo-H (HBox-trained) also achieves SOTA precision, outper-forming TROGeo+OST (e.g., 76.77% vs 76.16% Acc@50 on Drone →Sat Test). Collectively, these results prove that our paradigm is a more economical and effective path to high-precision geo-localization. 
+
+4.5. Ablation Studies 
+
+To validate our design choices, we conduct a series of abla-tion studies on the CVOGL-R test set. 
+
+The Effect of Main Components. We analyze the indi-vidual contributions of our two core innovations, MCP and OS-Loss Lo. The results of the ablation study are presented in Tab. 4. We establish a baseline using DetGeo ∗ that omits all components, which achieves a 50.26% Acc@50 on the Drone →Satellite set. The integration of the MCP module alone results in a substantial performance gain, elevating the Acc@50 score to 69.06% . This demonstrates the effective-ness of MCP in leveraging multi-scale contextual informa-tion. Building upon this, we replace the conventional IoU loss with our proposed Lo. This change further boosts the Acc@50 to 73.48% . The consistent improvement across all metrics clearly validates that both MCP and Lo are essen-tial components, and their combination enables the superior performance of our final model. Notably, this advantage becomes magnified with the stricter Acc@75 metric, indi-cating superior precision in fine-grained localization. Query Image OSGeo-R (Ours) DetGeo-R DetGeo TROGeo+SPS OSGeo-R+SPS (ours)      
+
+> Click Point Predict Box GT Box Predict Mask GT Mask Overlapping
+
+Figure 5. Visual comparison with state-of-the-art methods. Table 5. The effect of shared backbone and neck. “Shared.” indi-cates shared parameters, “Param.” indicates the parameter count.                                                
+
+> Method Shared. Param.(M) ↓Drone →Satellite Ground →Satellite Acc@75 Acc@50 Acc@25 Acc@75 Acc@50 Acc@25 DetGeo ∗[22] ×70.38 10.38% 50.26% 58.99% 8.94% 41.83% 47.17% VAGeo ∗[13] ×70.41 9.66% 55.50% 64.23% 9.66% 43.27% 48.41% OSGeo-R (ours) ×56.74 38.13% 67.83% 71.84% 26.98% 49.19% 51.68% OSGeo-R (ours) ✓30.63 42.24% 73.48% 78.42% 29.39% 50.36% 52.42%
+
+The Effect of Shared Backbone and Neck. We conduct an ablation study to evaluate the impact of parameter shar-ing on our model, with the results presented in Tab. 5. The experiment reveals that employing a shared backbone and neck not only drastically reduces the model size but also sig-nificantly boosts geo-localization performance. Our shared model consistently achieves higher accuracy across all met-rics, improving the Drone →Satellite Acc@75 from 38.13% to 42.24% while nearly halving the parameter count from 
+
+56.74M to 30.63M . This performance gain is even more pronounced when compared to traditional methods, such as DetGeo ∗ and VAGeo ∗, which do not utilize parameter shar-ing. The results demonstrate that parameter sharing is not a compromise for efficiency but a direct contributor to per-formance. By compelling the model to learn a unified rep-resentation, it guides the network to focus on the essential viewpoint-invariant features required for cross-view match-ing, leading to a more effective and efficient model. 
+
+The Effect of Different Backbones. We conduct an ab-lation study to assess the influence of backbone architec-tures on OSGeo-R, evaluating ResNet-18, ResNet-50, and ResNet-101. The results, presented in Tab. 6, reveal a di-rect correlation between network depth and localization ac-curacy. Specifically, increasing the model capacity from ResNet-18 to ResNet-101 yields substantial performance gains across both test splits. The ResNet-101 based model consistently achieves the best results, securing top scores on both the Drone →Satellite (47.28% Acc@75) and the more challenging Ground →Satellite (32.27% Acc@75) evalua-tions. This confirms our framework effectively capitalizes 
+
+Table 6. Ablation study of different backbones for OSGeo-R.                              
+
+> Backbone Drone →Satellite Ground →Satellite Acc@75 Acc@50 Acc@25 Acc@75 Acc@50 Acc@25 ResNet-18 33.71% 65.57% 70.61% 24.56% 48.20% 52.42% ResNet-50 42.24% 73.48% 78.42% 29.39% 50.36% 52.42% ResNet-101 47.28% 74.31% 78.62% 32.27% 51.39% 53.34%
+
+on the richer feature representations from deeper networks. 
+
+4.6. Qualitative Analysis 
+
+The qualitative results presented in Fig. 5 provide com-pelling visual evidence for the superior localization capa-bilities of our framework across objects of varying scales and orientations. DetGeo struggles with oriented objects (Rows 1, 3), producing oversized boxes that include signifi-cant background noise and fail to capture the true geometry of the target. In stark contrast, our OSGeo-R generates pre-cise, rotated boxes that tightly conform to the boundaries of the object. Furthermore, OSGeo-R delivers accurate results for both large objects (Row 1) and small, challenging targets where competing methods like DetGeo and DetGeo-R com-pletely fail (Row 2). When extended for segmentation, our OSGeo-R+SPS, trained only with bounding boxes , pro-duces masks of a quality comparable to the segmentation-based TROGeo. See supplementary material for details. 
+
+## 5. Conclusion 
+
+This work tackles the geometric inadequacy of HBoxes for oriented objects in cross-view object geo-localization. We introduce OSGeo, a novel framework for regressing tight Rotated Bounding Boxes (RBoxes), and release CVOGL-R, the first dataset with precise RBox annotations for CVOGL. Crucially, OSGeo achieves accuracy comparable or supe-rior to costly segmentation methods but with an order-of-magnitude lower annotation cost, demonstrating that ex-plicitly modeling object orientation is a highly effective and economical path to high-precision geo-localization. References 
+
+[1] Eiman Al Nuaimi, Hind Al Neyadi, Nader Mohamed, and Jameela Al-Jaroodi. Applications of big data to smart cities. 
+
+Journal of Internet Services and Applications , 6(1):1–15, 2015. 1 [2] Fabian Deuser, Konrad Habel, and Norbert Oswald. Sam-ple4geo: Hard negative sampling for cross-view geo-localisation. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 16847–16856, 2023. 1, 2, 6, 7 [3] Jian Ding, Nan Xue, Yang Long, Gui-Song Xia, and Qikai Lu. Learning roi transformer for oriented object detection in aerial images. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 2849– 2858, 2019. 3 [4] Jiaming Han, Jian Ding, Nan Xue, and Gui-Song Xia. Redet: A rotation-equivariant detector for aerial object detection. In 
+
+Proceedings of the IEEE/CVF conference on computer vi-sion and pattern recognition , pages 2786–2795, 2021. 3 [5] Ronny H¨ ansch, Jacob Arndt, Dalton Lunga, Matthew Gibb, Tyler Pedelose, Arnold Boedihardjo, Desiree Petrie, and Todd M Bacastow. Spacenet 8-the detection of flooded roads and buildings. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 1472– 1480, 2022. 1 [6] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Deep residual learning for image recognition. In Proceed-ings of the IEEE conference on computer vision and pattern recognition , pages 770–778, 2016. 3, 6 [7] Danfeng Hong, Jingliang Hu, Jing Yao, Jocelyn Chanussot, and Xiao Xiang Zhu. Multimodal remote sensing benchmark datasets for land cover classification with a shared and spe-cific feature learning model. ISPRS Journal of Photogram-metry and Remote Sensing , 178:68–80, 2021. 1 [8] Liping Hou, Ke Lu, Xue Yang, Yuqiu Li, and Jian Xue. G-rep: Gaussian representation for arbitrary-oriented object de-tection. Remote Sensing , 15(3):757, 2023. 3 [9] Sixing Hu, Mengdan Feng, Rang MH Nguyen, and Gim Hee Lee. Cvm-net: Cross-view matching network for image-based ground-to-aerial geo-localization. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition , pages 7258–7267, 2018. 1, 2 [10] Lei Ke, Martin Danelljan, Henghui Ding, Yu-Wing Tai, Chi-Keung Tang, and Fisher Yu. Mask-free video instance seg-mentation. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 22857– 22866, 2023. 2 [11] Alexander Kirillov, Eric Mintun, Nikhila Ravi, Hanzi Mao, Chloe Rolland, Laura Gustafson, Tete Xiao, Spencer White-head, Alexander C Berg, Wan-Yen Lo, et al. Segment any-thing. In Proceedings of the IEEE/CVF international con-ference on computer vision , pages 4015–4026, 2023. 2, 3, 5[12] Wentong Li, Yijie Chen, Kaixuan Hu, and Jianke Zhu. Ori-ented reppoints for aerial object detection. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 1829–1838, 2022. 3 [13] Zhongyang Li, Xin Yuan, Wei Liu, and Xin Xu. Vageo: View-specific attention for cross-view object geo-localization. In ICASSP 2025-2025 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP) , pages 1–5. IEEE, 2025. 2, 6, 8 [14] Jinliang Lin, Zhedong Zheng, Zhun Zhong, Zhiming Luo, Shaozi Li, Yi Yang, and Nicu Sebe. Joint representa-tion learning and keypoint detection for cross-view geo-localization. IEEE Transactions on Image Processing , 31: 3780–3792, 2022. 1, 2 [15] Tsung-Yi Lin, Serge Belongie, and James Hays. Cross-view image geolocalization. In Proceedings of the IEEE Con-ference on Computer Vision and Pattern Recognition , pages 891–898, 2013. 2 [16] Tsung-Yi Lin, Michael Maire, Serge Belongie, James Hays, Pietro Perona, Deva Ramanan, Piotr Doll´ ar, and C Lawrence Zitnick. Microsoft coco: Common objects in context. In 
+
+European conference on computer vision , pages 740–755. Springer, 2014. 2 [17] Tsung-Yi Lin, Piotr Doll´ ar, Ross Girshick, Kaiming He, Bharath Hariharan, and Serge Belongie. Feature pyra-mid networks for object detection. In Proceedings of the IEEE conference on computer vision and pattern recogni-tion , pages 2117–2125, 2017. 3 [18] Tsung-Yi Lin, Priya Goyal, Ross Girshick, Kaiming He, and Piotr Doll´ ar. Focal loss for dense object detection. In Pro-ceedings of the IEEE international conference on computer vision , pages 2980–2988, 2017. 3, 5 [19] Wen Qian, Xue Yang, Silong Peng, Junchi Yan, and Yue Guo. Learning modulated loss for rotated object detection. In Proceedings of the AAAI conference on artificial intelli-gence , pages 2458–2466, 2021. 3 [20] Yujiao Shi, Liu Liu, Xin Yu, and Hongdong Li. Spatial-aware feature aggregation for image based cross-view geo-localization. Advances in Neural Information Processing Systems , 32, 2019. 1, 2, 6 [21] Chunfeng Song, Wanli Ouyang, and Zhaoxiang Zhang. Weakly supervised semantic segmentation via box-driven masking and filling rate shifting. IEEE Transactions on Pattern Analysis and Machine Intelligence , 45(12):15996– 16012, 2023. 2, 5, 7 [22] Yuxi Sun, Yunming Ye, Jian Kang, Ruben Fernandez-Beltran, Shanshan Feng, Xutao Li, Chuyao Luo, Puzhao Zhang, and Antonio Plaza. Cross-view object geo-localization in a local region with satellite imagery. IEEE Transactions on Geoscience and Remote Sensing , 61:1–16, 2023. 2, 3, 5, 6, 7, 8 [23] Zhi Tian, Chunhua Shen, Hao Chen, and Tong He. Fcos: Fully convolutional one-stage object detection. In Proceed-ings of the IEEE/CVF international conference on computer vision , pages 9627–9636, 2019. 3, 5 [24] Scott Workman, Richard Souvenir, and Nathan Jacobs. Wide-area image geolocalization with aerial reference im-agery. In Proceedings of the IEEE International Conference on Computer Vision , pages 3961–3969, 2015. 2 [25] Bin Xiao, Haiping Wu, Weijian Xu, Xiyang Dai, Houdong Hu, Yumao Lu, Michael Zeng, Ce Liu, and Lu Yuan. Florence-2: Advancing a unified representation for a variety of vision tasks. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 4818– 4829, 2024. 1 [26] Xingxing Xie, Gong Cheng, Jiabao Wang, Xiwen Yao, and Junwei Han. Oriented r-cnn for object detection. In Proceed-ings of the IEEE/CVF International Conference on Com-puter Vision , pages 3520–3529, 2021. 3 [27] Hongji Yang, Xiufan Lu, and Yingying Zhu. Cross-view geo-localization with layer-to-layer transformer. Advances in Neural Information Processing Systems , 34:29009–29020, 2021. 1, 2, 6 [28] Xue Yang and Junchi Yan. Arbitrary-oriented object de-tection with circular smooth label. In Computer Vision– ECCV 2020: 16th European Conference, Glasgow, UK, Au-gust 23–28, 2020, Proceedings, Part VIII 16 , pages 677–694. Springer, 2020. 3 [29] Xue Yang, Liping Hou, Yue Zhou, Wentao Wang, and Junchi Yan. Dense label encoding for boundary discontinuity free rotation detection. In Proceedings of the IEEE/CVF con-ference on computer vision and pattern recognition , pages 15819–15829, 2021. 3 [30] Xue Yang, Junchi Yan, Qi Ming, Wentao Wang, Xiaopeng Zhang, and Qi Tian. Rethinking rotated object detection with gaussian wasserstein distance loss. In International Con-ference on Machine Learning , pages 11830–11841. PMLR, 2021. 3 [31] Xue Yang, Xiaojiang Yang, Jirui Yang, Qi Ming, Wentao Wang, Qi Tian, and Junchi Yan. Learning high-precision bounding box for rotated object detection via kullback-leibler divergence. Advances in Neural Information Process-ing Systems , 34:18381–18394, 2021. 3 [32] Ze Yang, Shaohui Liu, Han Hu, Liwei Wang, and Stephen Lin. Reppoints: Point set representation for object detection. In Proceedings of the IEEE/CVF international conference on computer vision , pages 9657–9666, 2019. 3 [33] Yi Yu and Feipeng Da. Phase-shifting coder: Predicting ac-curate orientation in oriented object detection. In Proceed-ings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 13354–13363, 2023. 3 [34] Chenhui Zhang and Sherrie Wang. Good at captioning bad at counting: Benchmarking gpt-4v on earth observation data. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 7839–7849, 2024. 1 [35] Qingwang Zhang and Yingying Zhu. Breaking rectangular shackles: Cross-view object segmentation for fine-grained object geo-localization. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 8197– 8206, 2025. 2, 5, 6, 7 [36] Zehao Zhang, Yuqi Sun, Lei Ding, Huayu Zhang, Yufeng Wang, and Wenrui Ding. Halo: Hierarchical adaptive fea-ture learning and cross-view interaction for object-level geo-localization. IEEE Transactions on Geoscience and Remote Sensing , 2025. 2, 6, 7 [37] Sijie Zhu, Mubarak Shah, and Chen Chen. Transgeo: Trans-former is all you need for cross-view image geo-localization. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 1162–1171, 2022. 1, 2, 6

@@ -1,0 +1,334 @@
+Title: ACPV-Net: All-Class Polygonal Vectorization for Seamless Vector Map Generation from Aerial Imagery
+
+URL Source: https://arxiv.org/pdf/2603.16616v1
+
+Published Time: Wed, 18 Mar 2026 01:23:59 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+# ACPV-Net: All-Class Polygonal Vectorization for Seamless Vector Map Generation from Aerial Imagery 
+
+## Weiqin Jiao ∗ Hao Cheng George Vosselman Claudio Persello Faculty of Geo-Information Science and Earth Observation (ITC) University of Twente, The Netherlands 
+
+w.jiao@utwente.nl Fully Automated All -Class Polygonal Vectorization (ACPV) 
+
+(for Vector Basemap Generation) 
+
+ACPV -Net (single run  → one seamless vector basemap) 
+
+Existing methods (per -class polygonization  → stitch) 
+
+> Semantically
+> Supervised
+> Conditioning
+
+Overlap 
+
+=8.47% 
+
+Overlap 
+
+=0.00% Topological 
+
+> Reconstruction
+
+Ground truth Ours 
+
+Overlap 
+
+Gap 
+
+Gap 
+
+=0.00% 
+
+Shared edge 
+
+=100 .00 %
+
+Gap 
+
+=13.57% 
+
+Shared edge 
+
+=10.81%     
+
+> Different paradigms:
+> •Vertex extraction &
+> adjacency learning
+> •Learning -based
+> polygon refinement
+> •Additional geometric
+> supervision
+> •…
+
+Figure 1. To generate an all-class vector basemap, existing single-class polygonization methods require per-class inference and stitching, resulting in gaps and overlaps across classes. ACPV-Net is the first fully automatic framework that produces a seamless basemap with 
+
+shared-edge consistency and avoids gaps and overlaps in a single run. 
+
+## Abstract 
+
+We tackle the problem of generating a complete vector map representation from aerial imagery in a single run: produc-ing polygons for all land-cover classes with shared bound-aries and without gaps or overlaps. Existing polygoniza-tion methods are typically class-specific; extending them to multiple classes via per-class runs commonly leads to topo-logical inconsistencies, such as duplicated edges, gaps, and overlaps. We formalize this new task as All-Class Polygo-nal Vectorization (ACPV) and release the first public bench-mark, Deventer-512, with standardized metrics jointly eval-uating semantic fidelity, geometric accuracy, vertex effi-ciency, per-class topological fidelity and global topologi-cal consistency. To realize ACPV, we propose ACPV-Net, a unified framework introducing a novel Semantically Su-pervised Conditioning (SSC) mechanism coupling seman-tic perception with geometric primitive generation, along with a topological reconstruction that enforces shared-edge consistency by design. While enforcing such strict topologi-cal constraints, ACPV-Net surpasses all class-specific base-lines in polygon quality across classes on Deventer-512. It also applies to single-class polygonal vectorization without any architectural modification, achieving the best-reported results on WHU-Building. Data, code, and models will be released at: https://github.com/HeinzJiao/ ACPV-Net .
+
+## 1. Introduction 
+
+A vector basemap, a.k.a. a topographic map, is a seam-less, multi-class, vector representation of land cover, where each region is encoded as a polygon of a specific class, and adjacent polygons share precisely one common boundary without gaps or overlaps [6, 8, 12, 13, 18, 19, 27, 28]. Such basemaps form the foundation of national geospatial data infrastructures and are essential for cadastral management and land-use planning. Despite their importance, the pro-duction and maintenance of authoritative vector basemaps remain predominantly manual [7, 10, 11], leading to labor-
+
+> arXiv:2603.16616v1 [cs.CV] 17 Mar 2026
+
+intensive, costly, and poorly reproducible workflows. Learning-based polygonization methods [9, 15–17, 36, 38, 40, 42, 46] have advanced automated map vectoriza-tion but remain class-specific. They are typically run per class and then stitched to obtain a complete vector basemap. Such post-hoc stitching commonly breaks topology, leading to gaps, overlaps, and duplicated edges (Fig. 1), and thus falls short of the shared-edge and zero-gap requirements. In this paper, we formalize this new task as All-Class Polygonal Vectorization (ACPV) : generating a single, glob-ally consistent planar partition of the image domain into per-class polygons that satisfy strict topological constraints (formal definitions in Sec. 3). Compared with single-class polygon extraction, ACPV is substantially harder, as it re-quires unified reasoning over semantics and geometry un-der a globally consistent topological structure. Here, ge-ometry refers to the geometric primitives that define polyg-onal structures, e.g ., edges, vertices, or equivalent struc-tures, that encode region boundaries and support topolog-ical reconstruction. This challenge arises from five key fac-tors: (i) Semantic–geometric heterogeneity (raster, cate-gorical semantics vs. vector, continuous geometry) compli-cates joint optimization; (ii) Strict alignment is needed be-tween semantic regions and geometric boundaries to pre-serve topological consistency; (iii) Weak/ambiguous vi-sual cues in aerial imagery (shadows, occlusions, semanti-cally ambiguous boundaries) demand reasoning beyond ap-pearance; (iv) Cartographic conventions (heuristic rules on how densely to sample or simplify vertices along smooth boundaries) are difficult to encode explicitly in standard learning frameworks; and (v) Global topological recon-struction of a single planar partition with shared boundaries and no gaps/overlaps goes beyond per-class geometry. To address these challenges, we introduce ACPV-Net ,the first fully automatic framework that converts a single aerial image into a topologically consistent vector basemap, making a significant step toward fully automatic topo-graphic mapping. We model geometry as discrete polyg-onal vertices, the atomic elements of polygonal structures, as Gaussian-mixture vertex heatmaps, allowing semantics and geometry to share the same raster domain. This distri-butional vertex representation enables the diffusion model to (1) learn cartographic sampling conventions that reflect human mapping heuristics, and (2) infer sparse, sharp ver-tex peaks under weak/ambiguous image cues such as shad-ows, occlusions, or semantically ambiguous boundaries. This generative, task-coupled geometry extraction stands in contrast to existing polygonal outline extraction methods [36, 38, 40, 46], which lack learned priors for cartographic conventions and degrade under weak image cues. Our core mechanism, Semantically Supervised Condi-tioning (SSC) , directly supervises the diffusion condition-ing stream with a semantic segmentation loss, enabling the conditioning itself to learn task-coupled semantics. Unlike existing conditional diffusion pipelines [30, 39, 41, 43] that inject external conditions without explicit supervision, SSC turns the conditioning into an active guidance signal that enforces semantic–geometric alignment and focuses ver-tex generation within class-consistent regions. The coher-ent evidence (multi-class mask + vertex peaks) completes the ACPV formulation through a proposition-driven Planar Straight-Line Graph (PSLG) reconstruction, which prov-ably ensures topological consistency by design rather than through heuristic post-processing (see Sec. 3, 4.2 for formal proof). To evaluate this new task and framework, we establish 
+
+Deventer-512 , the first public benchmark for ACPV. Ex-isting datasets either target single-class polygon extraction or provide multi-class raster masks without vector geom-etry, leaving no standard benchmark for ACPV. Deventer-512 fills this gap with high-resolution aerial imagery (0.3 m GSD) and fine-grained polygon annotations covering urban, suburban, and rural scenes under challenging conditions (shadows, occlusions, and semantically ambiguous bound-aries). It is representative yet compact and computation-ally accessible ( ∼2k patches), comprising 1,716 training, 212 validation, and 220 testing patches, totaling 84,403 in-stances and 22,679 internal holes (the most complex poly-gon contains up to 708 vertices), covering five typical land-cover classes with diverse geometric complexity, suitable for assessing both semantic and geometric reasoning. Astandardized evaluation protocol jointly measures seman-tic fidelity, geometric accuracy, vertex efficiency, per-class topological fidelity and global topological consistency. We also provide subsets for the above challenging conditions to enable robustness evaluation under weak/ambiguous evi-dence. Our main contributions are summarized as follows: • We address the vector basemap generation problem by formulating it as All-Class Polygonal Vectorization (ACPV) : generating a single, globally consistent planar partition of the image domain into per-class polygons that satisfy strict topological consistency. • We introduce ACPV-Net , the first fully automatic frame-work that, in a single run, produces topologically consis-tent vector basemaps from aerial imagery. • We release Deventer-512 , the first public ACPV bench-mark with high-resolution imagery, fine-grained poly-gons across five land-cover classes, a standardized eval-uation protocol, and subsets for challenging conditions. • ACPV-Net achieves gap-/overlap-free topology and sig-nificantly outperforms strong class-specific baselines across land-cover classes on Deventer-512. It also ap-plies, without any architectural change, to single-class polygonal vectorization on the WHU-Building dataset while maintaining excellent performance. 2. Related work 
+
+Single–class polygonal outline extraction. Most learning-based methods [3, 9, 36, 38, 40, 46] address a single class, typically buildings, given their practical importance in map-ping and the abundance of high-quality vector annotations. To construct a complete all-class map, their per-class results must be stitched post hoc, often introducing gaps, over-laps, or duplicated boundaries. Representative paradigms include learning-based polygon generation/refinement ( e.g ., [29, 40]), vertex detection and adjacency learning ( e.g ., [3, 38, 45, 46]), and additional geometric supervision such as attraction or frame fields ( e.g ., [9, 36]). RoI-based variants [15, 17, 42] avoid heavy heads but still process cropped in-stances independently, hindering shared-edge reasoning and limiting scalability to area-covering or elongated classes. Recent works exploring class-agnostic or multi-class set-tings [25, 31, 38] remain primarily single-class in training or evaluation and combine per-class boundaries post hoc, without explicitly enforcing global topological consistency. In contrast, we pursue single-run, all-class polygonal vec-torization that directly produces a topologically consistent planar partition of the image domain. 
+
+Segmentation-to-vectorization cascades. Multi-class land-cover mapping and semantic segmentation [20, 21, 23, 32–34, 44] output rasterized multi-class masks. Obtaining vectors often relies on geometry-driven, post-hoc simplifi-cations such as Douglas–Peucker [5], applied per connected component of the mask. This often introduces duplicated or misaligned inter-class boundaries, gaps/overlaps, and re-dundant vertices, violating the formal constraints of a seam-less vector basemap (specified in Sec. 3). 
+
+Conditional diffusion for structured geometry. Existing polygonization networks [3, 9, 36, 38, 40, 46] are predom-inantly discriminative , rely on discriminative visual cues to detect geometric structures such as vertices. Such formula-tions often struggle under weak/ambiguous cues ( e.g ., shad-ows, occlusions, semantically ambiguous boundaries) and lack learned cartographic conventions. To overcome these limitations, diffusion-based generative models have shown potential to offer probabilistic reasoning that complements discriminative cues [16, 22]. However, existing conditional diffusion pipelines [30, 39, 41, 43] are primarily designed for generic visual synthesis, where external conditions ( e.g ., images, texts, or sketches) are effective but lack explicit semantic supervision for structured geometry or semantic alignment. We fill this gap by introducing Semantically Su-pervised Conditioning (SSC), which directly supervises the conditioning branch with a semantic loss to guide vertex generation. This enables the model to learn cartographic conventions and maintain semantically aligned, sharp ver-tex peaks under weak image cues (see Sec. 6.3). 
+
+Topology and planar graph reconstruction. Topologi-cal consistency is a fundamental requirement for seamless vector basemap generation, as formalized in cartographic and GIS standards that define planar partitions with shared boundaries and no gaps or overlaps [6, 13, 26, 27]. Al-though some polygonal outline extraction methods [3, 38, 46] incorporate graph-based designs to model vertex con-nectivity, and a few recent works ( e.g . [4, 35]) introduce heuristic post-processing or topology-aware losses to allevi-ate local errors, they focus on local topological relationships rather than ACPV’s global topological consistency. To over-come this limitation, we introduce a proposition-driven pla-nar straight-line graph (PSLG) reconstruction that ensures topological consistency, providing a globally consistent pla-nar partition by construction (Sec. 4.2). 
+
+## 3. The ACPV task 
+
+We define ACPV (All-Class Polygonal Vectorization) as the task of producing a topology-consistent polygonal partition for all land-cover classes from an aerial image. 
+
+Problem Definition Let I : Ω → Rk be an aerial image with k spectral channels ( k = 3 for RGB) and C be a finite land-cover class set with |C| = C, ACPV seeks a labeled polygonal partition {P c}c∈C of the spatial domain Ω that satisfies the following constraints: 
+
+(a) Planar partition. Polygon interiors are disjoint, and the union of all polygons fills the whole domain Ω:
+
+int( pi) ∩ int( pj ) = ∅ ∀i̸ = j, 
+
+[
+
+> c
+
+[
+
+> p∈P c
+
+int( p) = Ω . (1) where Pc denotes the set of polygons labeled by class c and 
+
+int( p) is the interior of polygon p.
+
+(b) Shared boundaries. Any two adjacent polygons share one identical boundary segment, and no duplicate or parallel copies of the same boundary exist. 
+
+(c) Zero gap/overlap. Each point in Ω belongs to exactly one polygon, except along shared boundaries. 
+
+(d) Linear geometry. Each polygon boundary is a finite union of simple piecewise-linear chains (outer ring plus op-tional holes), without self-intersections. 
+
+(e) Semantic consistency. Each polygon carries exactly one label c ∈ C , and label transitions occur only across shared boundaries. 
+
+(f) Minimal vertex redundancy. Each polygon bound-ary is represented in a canonical, vertex-minimal form: no duplicate consecutive vertices or geometrically redundant points are allowed along any linear segment; vertex reduc-tion must preserve the polygon’s geometry and topology. 
+
+## 4. Method 
+
+We aim to generate a seamless, topology-consistent vector basemap from a single aerial image I – a single planar parti-𝓔        
+
+> Diffusion
+> process
+> 𝓓
+> Backward
+> denoising
+> Concat
+> Semantically supervised condition ing
+> Encoder
+> (frozen)
+> Decoder
+> (frozen)
+> Latent vector
+> 𝐻
+> 4×𝑊
+> 4×3Denoising
+> UNet
+> Semantic
+> encoder
+> Seg.
+> Head
+> V=17880
+> E=17932
+> V=695
+> E=743
+> Overdense  PSLG
+> Construct.
+> Vertex  Subset.
+> Selection
+> Topological recontruction
+
+Figure 2. Overview of ACPV-Net. It unifies semantically supervised conditioning and proposition-driven topological reconstruction: the former produces coherent semantic–geometric evidence through diffusion-based vertex generation under semantic supervision, the latter deterministically reconstructs a topology-consistent vector basemap via overdense PSLG construction and vertex-guided subset selection. 
+
+tion of the image domain into per-class polygons satisfying the ACPV constraints (Sec. 3). We propose ACPV-Net , as shown in Fig. 2, a unified framework with two tightly cou-pled components: • Semantically supervised conditioning (SSC). We choose vertices as the geometric primitives for construct-ing the vector basemap. Vertices of an aerial image are encoded as a Gaussian-mixture heatmap and recon-structed in latent space with a diffusion model. The con-ditioning stream is explicitly supervised by a semantic segmentation loss, so that semantics guide vertex genera-tion and enforce semantic–geometric alignment. • Proposition-driven topological reconstruction. From the coherent evidence ( ˆM , ˆY ) with semantic masks ˆM
+
+and vertex heatmap ˆY , we reconstruct polygons through a planar straight-line graph (PSLG) –based algorithm de-rived from a sufficient condition that ensures global topo-logical consistency by design. 
+
+4.1. Semantically supervised conditioning 
+
+Distributional vertex modeling. Let y ∈ [0 , 1] H×W be a Gaussian-mixture vertex heatmap (peaks centered at anno-tated corners). We encode y into a latent z0 = E(y) ∈
+
+RCz ×H′×W ′
+
+(H′ = H/ 4, W ′ = W/ 4) using a pretrained variational autoencoder (VAE) from [30]. As verified in the supplementary, the pretrained VAE preserves vertex-peak information with negligible degradation, making fine-tuning unnecessary; thus, it is kept frozen during training. 
+
+Task-coupled conditioning. A semantic encoder Sψ (I) ∈
+
+RCs×H′×W ′
+
+provides conditioning features at the same spatial scale as z0. Unlike generic conditional pipelines [30, 39, 41, 43], we explicitly supervise Sψ with a segmen-tation loss via a lightweight segmentation head, so that the conditioning carries discriminative semantics aligned with the downstream vertex generation. 
+
+Denoising objective. With forward noising q(zt | zt−1) and schedule {βt}Tt=1 , the latent diffusion model predicts the clean latent ˆz0 from the noisy input zt conditioned on se-mantic features Sψ (I):
+
+ˆz0 = ϕθ
+
+ zt, t, Cond( Sψ (I), z t). (2) where Sψ is trained jointly with the denoiser under the uni-fied loss:                
+
+> LSSC =λϵE∥ϵ−ϵθ(·)∥1+λ0E∥z0−ˆz0∥1+λseg Lseg ( ˆM , M ),
+
+(3) where Lseg is applied to the semantic prediction ˆM . At in-ference, iterative denoising yields ˆz0, which is decoded to a vertex heatmap ˆY = D(ˆ z0). The pair ( ˆM , ˆY ) constitutes coherent semantic–geometric evidence, with vertices spa-tially aligned with class boundaries in the semantic mask and covering key geometric corners. This coherent evidence serves as the input for the proposition-driven topological re-construction detailed in Sec. 4.2. 
+
+4.2. Proposition-driven topological reconstruction 
+
+We reconstruct a single planar partition from ( ˆM , ˆY ). We first formalize a sufficient condition under which the re-constructed planar partition satisfies all ACPV constraints (a)–(f) (see Sec. 3); we then derive a deterministic algorithm that satisfies this condition by construction. An overview of the process is shown in Fig. 2. 
+
+Proposition 1 (Sufficient condition for ACPV compliance) .
+
+Let G = ( V, E ) be a planar straight-line graph embedded in R2. Suppose that: (i) Each edge e ∈ E lies along a label-transition boundary in the multi-class mask ˆM , and the two faces adjacent to e have distinct semantic labels; and (ii) The vertex set V consists exclusively of geometric key-points , that is, vertices whose removal would alter the polygon’s topology or geometric structure. Then the polygonal partition obtained by tracing all face boundaries on G and assigning face labels according to ˆM
+
+satisfies all ACPV constraints (a)–(f). A complete proof is provided in the supplementary. Deterministic algorithm. We enforce the two premises in Proposition 1 by construction: 
+
+(1) Overdense PSLG construction. From the predicted multi-class mask ˆM , we extract all label-transition loci on the pixel-center lattice (including image borders) and con-nect adjacent transition pixels into one-pixel-wide boundary chains. Each transition pixel is treated as a vertex, and ad-jacent pairs form edges, resulting in a lattice-aligned planar straight-line graph G = ( V, E ). We deliberately keep all transition locations without any thinning or pruning, mak-ing G globally overdense , a superset covering all admissible boundary positions required by Proposition 1 Condition (i). This step establishes the planar scaffold on which the sub-sequent vertex-guided selection operates to satisfy Proposi-tion 1 Condition (ii). (2) Vertex-guided subset selection. We decompose the overdense PSLG G = ( V, E ) at anchor vertices ( deg( v)̸ =2) into anchor-bounded polylines. Discrete vertex peaks 
+
+ˆVp extracted from ˆY are projected onto their nearest PSLG loci within a fixed radius τ and ordered by arc length. The anchors and the projected keypoints are preserved to form simplified polylines that retain boundary geometry while re-moving redundant vertices. This step is designed to realize Proposition 1 Condition (ii). Together with Step (1), which satisfies Condition (i), it yields a simplified PSLG. Tracing the faces of this PSLG and assigning labels from ˆM pro-duces the final vectorized map. All operations are deterministic and use only protocol-level constants ( e.g . τ ), without dataset-specific tuning. 
+
+## 5. The ACPV Benchmark 
+
+Automated polygonal outline extraction has long relied on single-class datasets ( e.g ., Inria [24], WHU-Building [14]), where only one class is vectorized and topology across land-cover classes is ignored. Conversely, existing multi-class land-cover benchmarks ( e.g ., LoveDA [33], ISPRS Vaihin-gen/Potsdam [1, 2]) provide only raster masks, lacking vec-tor geometry. No public dataset currently supports evalu-ating ACPV, defined in Sec. 3, as an all-class polygonal vectorization task with strict topological constraints, nor provides standardized global topology-consistency metrics 
+
+for such evaluation. As shown in Table 1, the proposed 
+
+Deventer-512 fills this gap by providing high-resolution aerial imagery with topologically valid, multi-class vector annotations forming a single planar partition per patch, and a standardized evaluation protocol that measures both per-class polygonal quality and global topological consistency. 
+
+Deventer-512 is built from ortho-rectified aerial RGB imagery over the Deventer region in the eastern Nether-lands, acquired from the national cadastral mapping service (Kadaster ) at a ground sampling distance of 0.3 m. All an-notated polygons within each 512 ×512 patch are organized to form a topology-consistent planar partition with shared                                         
+
+> Table 1. Comparison of representative datasets for polygonal out-line extraction (top) and land-cover mapping (bottom). “V” indicates vector annotations; “S” shared-edge consistency; “T” global topology-consistency metrics; and “C” cadastral-aligned boundaries (as opposed to purely visual contours).
+> Dataset Multi-class VSTCInria [24] ✗✗✗✗✓
+> WHU-Building [14] ✗✓✗✗✓
+> ISPRS Vaihingen [2] ✓✗✗✗✗
+> ISPRS Potsdam [1] ✓✗✗✗✗
+> LoveDA [33] ✓✗✗✗✗
+> Deventer-512 (Ours) ✓✓✓✓✓
+
+boundaries (Sec. 3). Polygon annotations originate from official cadastral data and are refined through a topology-validation pipeline to ensure global topological consistency 
+
+(details in the supplementary material). The dataset contains five land-cover classes, i.e . build-ings, roads, vegetation, water , and unvegetated area , each represented as a topologically valid polygon set. It com-prises 1,716 training, 212 validation, and 220 testing patches, totaling 84,403 instances and 22,679 internal holes, with the most complex polygon containing up to 708 ver-tices. The polygons exhibit higher geometric complexity and vertex density than single-class building datasets, where object geometry is relatively simple. They are delineated following cadastral or administrative boundaries rather than purely visual ones, which introduces semantic–visual dis-crepancies, leading to semantically ambiguous boundaries that make the dataset particularly challenging. A more de-tailed description of the dataset is provided in the supple-mentary. 
+
+5.1. Evaluation protocol and baselines 
+
+Evaluation Metrics. We evaluate polygonal quality under a unified metric suite spanning: semantic fidelity , geomet-ric accuracy , vertex efficiency , and topological consistency .Details are provided in the supplementary material. 
+
+Baselines. We evaluate five representative state-of-the-art polygonization methods over the three major paradigms discussed in Sec. 2: DeepSnake [29] (a learned poly-gonization module based on active contour evolution), 
+
+FFL [9] (frame-field–guided polygonization), TopDiG [38] (transformer-based vertex detection and adjacency learn-ing), HiSup [36] (hierarchical attraction-field supervision), and GCP [40] (a global contour proposal network with transformer-based polygon refinement). They span learned polygon refinement, vertex extraction and adjacency learn-ing, and geometric-field modeling, ensuring comprehen-sive coverage of existing polygonization paradigms. They are trained and evaluated on Deventer-512 using identical patch-based settings and evaluation metrics. Table 2. Global topological consistency on Deventer-512.                                   
+
+> Metrics include gap rate (Gap), inter-class overlap rate (Inter), intra-class overlap rate (Intra) and shared-edge consistency rate (Shared). Best and second-best values are highlighted in bold and underlined, respectively. All percentage values are reported to two decimal places.
+> Method Gap ↓Inter ↓Intra ↓Shared ↑
+> DeepSnake [29] (CVPR ’20) 12.41 68.86 51.16 38.73 FFL [9] (CVPR ’21) 5.48 29.17 0.08 9.20 TopDiG [38] (CVPR ’23) 8.47 13.57 0.00 10.81 HiSup [36] (ISPRS ’23) 5.43 4.50 0.00 25.73 GCP [40] (TGRS ’25) 8.75 10.39 41.91 20.25 ACPV-Net (Ours) 0.00 0.00 0.00 100.00
+
+## 6. Experiments 
+
+6.1. ACPV on Deventer-512 
+
+We first evaluate the output vector basemap as a whole to verify compliance with the ACPV constraints in realizing seamless all-class vector map generation from aerial im-agery. As shown in Table 2, when the single-class outputs of baselines are stitched together, they consistently exhibit non-zero inter- and intra-overlap rates, whereas ACPV-Net achieves zero measured gap and overlap rates and 100% shared-edge consistency, confirming the seamless nature of the generated vector basemap. Detailed per-class overlap statistics are reported in the supplementary material. We further analyze per-class performance by extracting polygons of each land-cover class from this basemap and compare them with state-of-the-art single-class polygoniza-tion methods, each applied separately to individual land-cover classes. As shown in Table 3, ACPV-Net produces all classes in one pass and achieves consistent improvement across all five classes in semantic fidelity, geometric accu-racy, topological fidelity, and vertex efficiency, without any class-specific tuning, except for a slightly higher MTA on water (42.63 ours vs. 42.22 HiSup). This difference is likely due to our more compact vertex representation measured in N-ratio (0.92 ours vs. 3.26 HiSup) for representing irregular curved water body boundaries. Figure 3 presents three representative scenes from the Deventer-512 test set: urban , suburban , and rural areas .These examples also cover challenging visual conditions such as shadow, partial occlusion, and semantically ambigu-ous boundaries. ACPV-Net predicts more accurate vector maps than the other models, illustrating the robustness of ACPV-Net under weak visual cues. Additional qualitative comparisons under more visual conditions and baselines are provided in the supplementary material. 
+
+6.2. Single-class Polygonal Vectorization 
+
+To further validate the applicability of ACPV-Net beyond multi-class mapping, we directly apply the same archi-        
+
+> (a) Input (b) GT (c) TopDiG (d) HiSup (e) Ours
+> Figure 3. Qualitative comparison on Deventer-512. The three rows show representative urban, suburban, and rural scenes, re-spectively. From left to right: aerial imagery, ground truth, TopDiG [38], HiSup [36], and Ours. Land-cover classes are color-coded; polygon outlines are drawn in black, vertices are high-lighted with orange dots, and inter-class overlaps and gaps are marked in red and black, respectively.
+
+tecture to single-class polygonal vectorization without any structural modification. We select the WHU-Building dataset [14] for this experiment because building is the most common and structurally representative category in aerial imagery, and the dataset provides large-scale, high-resolution images with reliable annotations. As summarized in Table 4, ACPV-Net achieves the best-reported results on WHU-Building against building-specific single-class poly-gonization baselines, demonstrating that ACPV-Net is not limited to seamless multi-class vector map generation. It also serves as a unified and flexible framework for single-class polygonal outline extraction. Representative visual re-sults are provided in the supplementary material. It is worth mentioning that, to examine cross-region ro-bustness, we apply the same model trained on Deventer-512 to high-resolution aerial imagery from cities in other coun-tries and sensors without fine-tuning. The results (see sup-plementary) show consistent topological validity and rea-sonable polygon regularity in visually similar regions. 
+
+6.3. Ablation Studies 
+
+We conduct comprehensive ablations to verify the effec-tiveness of each key design component in ACPV-Net. Specifically, we analyze (i) how semantically supervised conditioning (SSC) suppresses artifacts and enhances se-mantic–geometric alignment, (ii) how distributional vertex modeling via latent reconstruction improves robustness and vertex precision under weak/ambiguous visual cues, and (iii) how the deterministic reconstruction ensures topolog-ical consistency by design. All experiments are performed on Deventer-512 under identical settings (see implementa-tion details in the supplementary). Table 3. Quantitative comparison on Deventer-512. Best and second-best values are highlighted in bold and underlined, respectively. APLS is evaluated only on elongated classes (roads and water bodies). 
+
+Class Method Semantic fidelity Vertex efficiency Geometric accuracy Topological fidelity IoU ↑ B-IoU ↑ N-ratio →1 C-IoU ↑ PoLiS ↓ MTA ↓ APLS ↑ χ-Err ↓ β-Err ↓
+
+Road DeepSnake [29] (CVPR ’20) 10.35 7.90 74.91 4.58 33.18 53.38 64.85 7.82 10.11 FFL [9] (CVPR ’21) 62.00 58.08 3.74 42.28 11.48 44.05 78.53 15.31 15.40 TopDiG [38] (CVPR ’23) 58.75 55.95 1.80 44.06 10.28 44.27 70.65 5.90 6.54 HiSup [36] (ISPRS ’23) 73.92 69.29 2.00 57.36 4.97 44.84 81.06 5.16 5.45 GCP [40] (TGRS ’25) 59.93 56.58 0.86 44.96 9.18 49.19 73.00 4.38 5.18 Ours 76.01 73.32 1.07 68.22 4.44 43.85 83.52 3.68 4.04 
+
+Building DeepSnake [29] (CVPR ’20) 34.24 29.96 30.00 9.64 4.41 50.38 — 7.39 8.45 FFL [9] (CVPR ’21) 63.69 60.91 8.69 40.56 3.21 48.12 — 39.71 42.60 TopDiG [38] (CVPR ’23) 72.56 69.03 1.07 63.12 3.37 45.97 — 7.21 8.37 HiSup [36] (ISPRS ’23) 81.22 78.06 1.55 70.60 2.23 42.59 — 6.82 7.70 GCP [40] (TGRS ’25) 73.97 70.41 1.79 58.59 2.91 47.37 — 6.84 7.45 Ours 82.08 79.50 1.00 77.24 1.76 39.39 — 2.32 2.72 
+
+Unvegetated DeepSnake [29] (CVPR ’20) 21.06 10.84 68.93 3.31 17.32 53.90 — 8.25 11.85 FFL [9] (CVPR ’21) 43.91 35.56 30.62 24.99 19.27 47.40 — 84.35 91.59 TopDiG [38] (CVPR ’23) 49.26 39.92 0.77 40.61 12.73 48.44 — 6.30 10.28 HiSup [36] (ISPRS ’23) 61.46 55.37 1.93 51.79 8.66 47.17 — 4.22 5.34 GCP [40] (TGRS ’25) 47.85 38.39 1.23 41.09 10.71 53.67 — 6.10 8.09 Ours 66.89 61.51 1.09 61.79 6.41 46.79 — 2.80 3.62 
+
+Vegetation DeepSnake [29] (CVPR ’20) 51.18 25.88 58.81 3.70 16.63 51.89 — 16.89 17.96 FFL [9] (CVPR ’21) 61.19 39.18 4.12 29.23 15.46 46.35 — 33.65 33.95 TopDiG [38] (CVPR ’23) 70.02 49.64 2.67 44.09 11.35 45.79 — 9.31 11.43 HiSup [36] (ISPRS ’23) 75.70 57.85 3.54 46.07 7.51 41.86 — 8.53 9.70 GCP [40] (TGRS ’25) 70.37 49.65 2.57 45.24 9.00 49.29 — 12.97 14.05 Ours 80.05 64.50 0.98 67.55 6.22 41.43 — 6.62 7.53 
+
+Water DeepSnake [29] (CVPR ’20) 27.27 20.93 116.05 14.87 14.62 53.55 56.05 5.57 6.83 FFL [9] (CVPR ’21) 54.73 47.02 5.53 41.72 7.92 44.91 61.22 11.24 11.29 TopDiG [38] (CVPR ’23) 43.23 39.65 0.36 33.61 9.14 43.58 30.75 1.93 2.05 HiSup [36] (ISPRS ’23) 64.84 58.23 3.26 51.79 4.29 42.22 58.40 1.77 1.86 GCP [40] (TGRS ’25) 52.74 45.87 1.08 44.52 5.00 46.24 60.85 1.55 1.64 Ours 67.96 62.05 0.92 59.53 3.83 42.63 68.81 1.28 1.34 
+
+Table 4. Quantitative comparison on WHU-Building. Best values are in bold and second-best values are underlined. 
+
+Method Sem. fidelity Vertex efficiency Geo. accuracy Topo. fidelity IoU ↑ B-IoU ↑ N-ratio →1 C-IoU ↑ PoLiS ↓ MTA ↓ χ-Err ↓ β-Err ↓
+
+DeepSnake [29] 71.39 64.10 2.05 54.21 2.17 46.85 4.43 6.29 FFL [9] 80.86 74.63 3.68 46.09 2.13 38.86 12.33 14.88 TopDiG [38] 83.79 77.73 1.95 62.25 1.99 38.82 2.13 2.56 HiSup [36] 87.63 82.82 1.93 67.15 1.40 35.27 1.95 2.28 GCP [40] 83.28 77.58 2.11 60.51 1.66 34.96 3.20 4.39 Ours 88.50 83.39 1.07 81.45 1.38 34.85 1.60 1.81 
+
+SSC and Distributional Vertex Modeling. We conduct two controlled experiments to isolate the effects of (i) ex-plicit semantic supervision (SSC) and (ii) distributional ver-tex modeling through latent reconstruction. 
+
+(i) No explicit semantic supervision (No-SSC). We dis-able the gradient flow of the segmentation loss Lseg to the conditioning encoder Sψ , so that its features are opti-mized only through the diffusion objective. This setting reduces the model to a typical conditional diffusion setup (e.g . [30, 39, 41, 43]) without explicit task-specific supervi-sion. The segmentation head remains active, producing ˆM
+
+for fair comparison. Without explicit semantic guidance, the model produces numerous false-positive vertex activa-tions, many of which appear inside homogeneous regions rather than along class-consistent boundaries (see Fig. 4). We quantify this misalignment using the Vertex–Boundary Pure discrim . Ours  GT peaks w/o SSC Aerial image 
+
+Figure 4. Vertex activations under weak/ambiguous visual cues and along smooth boundaries (cartographic convention cases). From left to right: aerial image, pure discriminative decoding, without semantic supervision (No-SSC), ours, and ground truth. 
+
+Alignment (V2B δ) metric, the fraction of predicted vertices that fall within τ pixels of their class-consistent boundaries. As shown in Table 5, removing Lseg leads to a clear drop in alignment, confirming that explicit semantic supervision enhances semantic–geometric consistency. 
+
+(ii) Pure discriminative decoding. To assess the impact of distributional vertex modeling, we replace the latent re-construction with a direct pixel-space decoder ( pure dis-Table 5. Vertex–Boundary Alignment (V2B@ δ) comparison be-tween No-SSC and Full SSC . Global boundaries are computed as multi-class label transitions from the raster mask. Avg(2,4,6) de-notes the mean of V2B@ 2, @ 4, and @ 6.                      
+
+> Variant V2B@2 ↑V2B@4 ↑V2B@6 ↑Avg@2,4,6 ↑
+> No-SSC 0.38 0.48 0.53 0.46
+> Full SSC (ours) 0.78 0.87 0.90 0.85 Pure discrim .Ours
+> (a) FWHM xPure discrim .Ours (b) FWHM yPure discrim .Ours
+> (c) Area@0.5 Pure discrim .Ours (d) Sharpness
+
+Figure 5. Vertex peak-shape comparison between the pure dis-criminative baseline and our distributional reconstruction . Lower values of FWHM and Area@0.5 indicate sharper and more com-pact peaks, while higher Sharpness reflects stronger local contrast. The blue/red bar denotes the median/90th percentile. Table 6. Summary statistics (median and 90th percentile) of vertex peak-shape metrics.                          
+
+> Metric Pure discrim. Ours (dist. model) Median P90 Median P90
+> FWHM x↓9.55 10.23 6.09 7.64
+> FWHM y↓9.46 10.25 6.09 7.70
+> Area@0.5 ↓75.0 105.0 21.0 39.0
+> Sharpness ↑0.10 0.14 0.24 0.27
+
+criminative ) adopting the ViTPose [37] design as a strong baseline. We analyze vertex peak shapes using three intu-itive metrics– FWHM (peak width), Area@0.5 (size of high-response region), and Sharpness (local contrast)–with full computation details provided in the supplementary mate-rial. As shown in Fig. 5 and Table 6, the diffusion-based reconstruction yields sharper, more isotropic, and spatially compact peaks (smaller FWHM, lower high-response area, and higher sharpness), whereas the discriminative head pro-duces broad or band-like responses (see Fig. 4). These re-sults demonstrate that our approach effectively handles the challenges of weak visual cues and smooth boundaries re-lying on cartographic conventions highlighted in Sec. 1. We also evaluate robustness under varying NMS thresh-
+
+Table 7. Ablation of Topology-consistency on the reconstruction stage. Metrics are averaged over DP tolerances ε ∈ { 1, 2, 3, 4}.
+
+Method Gap ↓ Inter ↓ Intra ↓ Shared ↑
+
+No PSLG + DP (w/o VSS) 1.04 0.14 0.00 15.38 PSLG + DP (w/o VSS) 0.00 0.00 0.00 100.00 
+
+olds. The distributional model shows minimal variance across all polygonal metrics, whereas the discriminative baseline fluctuates notably (detailed in the supplementary). 
+
+Ablation on Topological Reconstruction. This evaluates the effectiveness of (i) the planar structural precondition es-tablished by the overdense PSLG construction , and (ii) the geometric simplification enabled by the vertex-guided sub-set selection (VSS). All variants share the same segmenta-tion and vertex priors ( ˆM , ˆY ) for fair comparison. 
+
+(i) Importance of the planar structural precondition. 
+
+We compare the full PSLG-based reconstruction (“PSLG + DP, without VSS”) against a variant that omits the PSLG and polygonizes each semantic class independently from its mask boundaries (“No PSLG + DP, without VSS”). The goal is to validate the necessity of building a globally planar straight-line graph as required by Proposition 1. As shown in Table 7, removing the PSLG destroys the planar struc-tural precondition, leading to severe violations in shared edge consistency. In contrast, the PSLG enforces a single global planar graph on which faces are labeled, serving as the essential precondition for realizing Proposition 1 and ensuring topology consistency by design .
+
+(ii) Effect of VSS. We also compare our vertex-guided sub-set selection (VSS) with the traditional geometry-only sim-plification algorithm Douglas–Peucker (DP) [5]. While DP minimizes geometric deviation, it is highly sensitive to the tolerance parameter and lacks data-driven saliency. Our VSS leverages learned vertices for adaptive keypoint preser-vation and yields lower redundancy at comparable or lower geometric error (see supplementary for details). 
+
+## 7. Conclusion 
+
+We presented ACPV-Net , the first fully automatic frame-work for seamless and topologically consistent vector basemap generation from aerial imagery. Departing from existing single-class polygonal outline extraction methods, our approach performs all-class polygonal vectorization in a single run. On the new Deventer-512 benchmark, ACPV-Net achieves gap-/overlap-free topology with shared-edge consistency, and consistently outperforms strong single-class baselines across all land-cover classes. It also gen-eralizes to single-class polygonal extraction, achieving the best results on the WHU-Building dataset. We believe this work represents an important step toward fully automated, large-scale, and topologically consistent vector map gener-ation in remote sensing. 8. Acknowledgment 
+
+This publication is part of the project “Learning from old maps to create new ones”, with project number 19206 of the Open Technology Programme, which is financed by the Dutch Research Council (NWO), The Netherlands. We thank the members of the project for their support in data preparation. 
+
+## References 
+
+[1] Isprs 2d semantic labeling - potsdam. https://www. isprs.org/resources/datasets/benchmarks/ UrbanSemLab/2d- sem- label- potsdam.aspx , . Accessed: 2025-11-10. 5 [2] Isprs 2d semantic labeling - vaihingen. https://www. isprs.org/resources/datasets/benchmarks/ UrbanSemLab/2d-sem-label-vaihingen.aspx ,. Accessed: 2025-11-10. 5 [3] Yeshwanth Kumar Adimoolam, Charalambos Poullis, and Melinos Averkiou. Pix2poly: A sequence prediction method for end-to-end polygonal building footprint extraction from remote sensing imagery. In 2025 IEEE/CVF Winter Con-ference on Applications of Computer Vision (WACV) , pages 8484–8493. IEEE, 2025. 3 [4] Yizi Chen, Joseph Chazalon, Edwin Carlinet, Minh ˆOn V˜ u Ngoc, Cl´ ement Mallet, and Julien Perret. Automatic vectorization of historical maps: A benchmark. Plos one , 19 (2):e0298217, 2024. 3 [5] David H Douglas and Thomas K Peucker. Algorithms for the reduction of the number of points required to represent a dig-itized line or its caricature. Cartographica: the international journal for geographic information and geovisualization , 10 (2):112–122, 1973. 3, 8 [6] Esri. Geodatabase topology rules and fixes for poly-gon features. https : / / pro . arcgis . com / en / pro-app/latest/help/editing/geodatabase-topology-rules-for-polygon-features.htm ,2025. Includes rules such as Must Not Overlap and Must Not Have Gaps . 1, 3 [7] Esri. Vector basemaps — overview. https : / / links . esri . com / agol - help / vector -basemaps - group , 2025. ArcGIS Online official overview of Esri Vector Basemaps. 1 [8] Geonovum. Basisregistratie grootschalige topografie gegevenscatalogus bgt 1.2, 2020. Accessed: 2025-04-02. 1 [9] Nicolas Girard, Dmitriy Smirnov, Justin Solomon, and Yuliya Tarabalka. Polygonal building extraction by frame field learning. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 5891– 5900, 2021. 2, 3, 5, 6, 7 [10] Google. How google maps is made. https://blog. google / intl / en - mena / product - updates / explore - get - answers / how - google - maps/ ,2022. Updated official blog post on map-building practices. 1[11] Google. Vector map features — maps javascript api. https://developers.google.com/maps/ documentation/javascript/vector-map , 2025. Describes the vector basemap delivery/rendering (client-side WebGL). 1 [12] Joachim H¨ ohle. Generating topographic map data from clas-sification results. Remote Sensing , 9(3):224, 2017. 1 [13] International Organization for Standardization. Iso 19125-1:2004 — geographic information — simple fea-ture access — part 1: Common architecture. https: //cdn.standards.iteh. ai/samples/40114/ 17e00cdeb36e49fea340185d746e4a20 / ISO -19125-1-2004.pdf , 2004. 1, 3 [14] Shunping Ji, Shiqing Wei, and Meng Lu. Fully convolutional networks for multisource building extraction from an open aerial and satellite imagery data set. IEEE Transactions on geoscience and remote sensing , 57(1):574–586, 2018. 5, 6 [15] Weiqin Jiao, Claudio Persello, and George Vosselman. Polyr-cnn: R-cnn for end-to-end polygonal building outline extraction. ISPRS Journal of Photogrammetry and Remote Sensing , 218:33–43, 2024. 2, 3 [16] Weiqin Jiao, Hao Cheng, George Vosselman, and Claudio Persello. Ldpoly: Latent diffusion for polygonal road out-line extraction in large-scale topographic mapping. ISPRS Journal of Photogrammetry and Remote Sensing , 230:820– 842, 2025. 3 [17] Weiqin Jiao, Hao Cheng, George Vosselman, and Claudio Persello. Roipoly: Vectorized building outline extraction using vertex and logit embeddings. ISPRS Journal of Pho-togrammetry and Remote Sensing , 224:317–328, 2025. 2, 3[18] Alexander Kent. Topographic maps: methodological ap-proaches for analyzing cartographic style. Journal of Map & Geography Libraries , 5(2):131–156, 2009. 1 [19] Alexander J Kent and Anja Hopfstock. Topographic map-ping: past, present and future. The Cartographic Journal , 55 (4):305–308, 2018. 1 [20] Yuxuan Li, Qibin Hou, Zhaohui Zheng, Ming-Ming Cheng, Jian Yang, and Xiang Li. Large selective kernel network for remote sensing object detection. In Proceedings of the IEEE/CVF international conference on computer vision ,pages 16794–16805, 2023. 3 [21] Yuxuan Li, Xiang Li, Yimain Dai, Qibin Hou, Li Liu, Yongx-iang Liu, Ming-Ming Cheng, and Jian Yang. Lsknet: Afoundation lightweight backbone for remote sensing: Y. li et al. International Journal of Computer Vision , 133(3):1410– 1431, 2025. 3 [22] Tianyu Lin, Zhiguang Chen, Zhonghao Yan, Weijiang Yu, and Fudan Zheng. Stable diffusion segmentation for biomed-ical images with single-step reverse process. In International Conference on Medical Image Computing and Computer-Assisted Intervention , pages 656–666. Springer, 2024. 3 [23] Yue Liu, Yunjie Tian, Yuzhong Zhao, Hongtian Yu, Lingxi Xie, Yaowei Wang, Qixiang Ye, Jianbin Jiao, and Yunfan Liu. Vmamba: Visual state space model. Advances in neural information processing systems , 37:103031–103063, 2024. 3 [24] Emmanuel Maggiori, Yuliya Tarabalka, Guillaume Charpiat, and Pierre Alliez. Can semantic labeling methods general-ize to any city? the inria aerial image labeling benchmark. In 2017 IEEE International geoscience and remote sensing symposium (IGARSS) , pages 3226–3229. IEEE, 2017. 5 [25] Yu Meng, Ligao Deng, Zhihao Xi, Jiansheng Chen, Jingbo Chen, Anzhi Yue, Diyou Liu, Kai Li, Chenhao Wang, Kaiyu Li, et al. Irsamap: Towards large-scale, high-resolution land cover map vectorization. IEEE Transactions on Geoscience and Remote Sensing , 2025. 3 [26] Faculty of Geo-Information Science and University of Twente Earth Observation (ITC). Concept page 81728: [title of the concept as shown on the page]. https://ltb. itc . utwente . nl / page / 498 / concept / 81728 .Accessed: November 9, 2025. 3 [27] Open Geospatial Consortium. Simple feature access — part 1: Common architecture (iso 19125-1). https://www. ogc.org/publications/standard/sfa/ , 2011. 1, 3[28] SJ Oude Elberink. Acquisition of 3d topgraphy: automated 3d road and building reconstruction using airborne laser scanner data and topographic maps. 2010. 1 [29] Sida Peng, Wen Jiang, Huaijin Pi, Xiuli Li, Hujun Bao, and Xiaowei Zhou. Deep snake for real-time instance seg-mentation. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 8533–8542, 2020. 3, 5, 6, 7 [30] Robin Rombach, Andreas Blattmann, Dominik Lorenz, Patrick Esser, and Bj¨ orn Ommer. High-resolution image synthesis with latent diffusion models. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 10684–10695, 2022. 2, 3, 4, 7 [31] Chenhao Wang, Zhihao Xi, Diyou Liu, Yuman Feng, Yupeng Deng, Kai Li, Jingbo Chen, Jiansheng Chen, and Yu Meng. Pcp: A prompt-based cartographic-level polygonal vector extraction framework for remote sensing images. IEEE Transactions on Geoscience and Remote Sensing , 2025. 3 [32] Jingdong Wang, Ke Sun, Tianheng Cheng, Borui Jiang, Chaorui Deng, Yang Zhao, Dong Liu, Yadong Mu, Mingkui Tan, Xinggang Wang, et al. Deep high-resolution repre-sentation learning for visual recognition. IEEE transactions on pattern analysis and machine intelligence , 43(10):3349– 3364, 2020. 3 [33] Junjue Wang, Zhuo Zheng, Ailong Ma, Xiaoyan Lu, and Yanfei Zhong. Loveda: A remote sensing land-cover dataset for domain adaptive semantic segmentation. In Proceed-ings of the Neural Information Processing Systems Track on Datasets and Benchmarks . Curran Associates, Inc., 2021. 5 [34] Libo Wang, Rui Li, Ce Zhang, Shenghui Fang, Chenxi Duan, Xiaoliang Meng, and Peter M Atkinson. Unetformer: Aunet-like transformer for efficient semantic segmentation of remote sensing urban scene imagery. ISPRS Journal of Pho-togrammetry and Remote Sensing , 190:196–214, 2022. 3 [35] Xue Xia, Tao Zhang, Magnus Heitzler, and Lorenz Hurni. Vectorizing historical maps with topological consistency: A hybrid approach using transformers and contour-based in-stance segmentation. International Journal of Applied Earth Observation and Geoinformation , 129:103837, 2024. 3 [36] Bowen Xu, Jiakun Xu, Nan Xue, and Gui-Song Xia. Hisup: Accurate polygonal mapping of buildings in satellite im-agery with hierarchical supervision. ISPRS Journal of Pho-togrammetry and Remote Sensing , 198:284–296, 2023. 2, 3, 5, 6, 7 [37] Yufei Xu, Jing Zhang, Qiming Zhang, and Dacheng Tao. Vit-pose: Simple vision transformer baselines for human pose estimation. Advances in neural information processing sys-tems , 35:38571–38584, 2022. 8 [38] Bingnan Yang, Mi Zhang, Zhan Zhang, Zhili Zhang, and Xi-angyun Hu. Topdig: Class-agnostic topological directional graph extraction from remote sensing images. In Proceed-ings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 1265–1274, 2023. 2, 3, 5, 6, 7 [39] Tao Yang, Rongyuan Wu, Peiran Ren, Xuansong Xie, and Lei Zhang. Pixel-aware stable diffusion for realistic image super-resolution and personalized stylization. In European conference on computer vision , pages 74–91. Springer, 2024. 2, 3, 4, 7 [40] Fahong Zhang, Yilei Shi, and Xiao Xiang Zhu. Global collinearity-aware polygonizer for polygonal building map-ping in remote sensing. IEEE Transactions on Geoscience and Remote Sensing , 2025. 2, 3, 5, 6, 7 [41] Lvmin Zhang, Anyi Rao, and Maneesh Agrawala. Adding conditional control to text-to-image diffusion models. In 
+
+Proceedings of the IEEE/CVF international conference on computer vision , pages 3836–3847, 2023. 2, 3, 4, 7 [42] Wufan Zhao, Claudio Persello, and Alfred Stein. Building outline delineation: From aerial images to polygons with an improved end-to-end learning framework. ISPRS journal of photogrammetry and remote sensing , 175:119–131, 2021. 2, 3[43] Yibo Zhao, Liang Peng, Yang Yang, Zekai Luo, Hengjia Li, Yao Chen, Zheng Yang, Xiaofei He, Wei Zhao, Qinglin Lu, et al. Local conditional controlling for text-to-image diffu-sion models. In Proceedings of the AAAI Conference on Ar-tificial Intelligence , pages 10492–10500, 2025. 2, 3, 4, 7 [44] Qinfeng Zhu, Yuanzhi Cai, Yuan Fang, Yihan Yang, Cheng Chen, Lei Fan, and Anh Nguyen. Samba: Semantic seg-mentation of remotely sensed images with state space model. 
+
+Heliyon , 10(19), 2024. 3 [45] Stefano Zorzi and Friedrich Fraundorfer. Re: Polyworld-a graph neural network for polygonal scene parsing. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 16762–16771, 2023. 3 [46] Stefano Zorzi, Shabab Bazrafkan, Stefan Habenschuss, and Friedrich Fraundorfer. Polyworld: Polygonal building ex-traction with graph neural networks in satellite images. In 
+
+Proceedings of the IEEE/CVF Conference on Computer Vi-sion and Pattern Recognition , pages 1848–1857, 2022. 2, 3

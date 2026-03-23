@@ -1,0 +1,307 @@
+Title: VFM-Loc: Zero-Shot Cross-View Geo-Localization via Aligning Discriminative Visual Hierarchies
+
+URL Source: https://arxiv.org/pdf/2603.13855v1
+
+Published Time: Tue, 17 Mar 2026 01:35:11 GMT
+
+Number of Pages: 19
+
+Markdown Content:
+# VFM-Loc: Zero-Shot Cross-View Geo-Localization via Aligning Discriminative Visual Hierarchies 
+
+Jun Lu 1, Zehao Sang 1, Haoqi Wei 1, Xiangyun Liu 1, Kun Zhu 1, Haitao Guo 1,Zhihui Gong 1, and Lei Ding 1,2 ⋆  
+
+> 11
+
+Information Engineering University, Zhengzhou, China   
+
+> 22
+
+Chinese Academy of Sciences, Beijing, China 
+
+dinglei14@outlook.com 
+
+Abstract. Cross-View Geo-Localization (CVGL) in remote sensing aims to locate a drone-view query by matching it to geo-tagged satellite im-ages. Although supervised methods have achieved strong results on close-set benchmarks, they often fail to generalize to unconstrained, real-world scenarios due to severe viewpoint differences and dataset bias. To over-come these limitations, we present VFM-Loc, a training-free framework for zero-shot CVGL that leverages the generalizable visual representa-tions from vision foundational models (VFMs). VFM-Loc identifies and matches discriminative visual clues across different viewpoints through a progressive alignment strategy. First, we design a hierarchical clue extrac-tion mechanism using Generalized Mean pooling and Scale-Weighted R-MAC to preserve distinctive visual clues across scales while maintaining hierarchical confidence. Second, we introduce a statistical manifold align-ment pipeline based on domain-wise PCA and Orthogonal Procrustes analysis, linearly aligning heterogeneous feature distributions in a shared metric space. Experiments demonstrate that VFM-Loc exhibits strong zero-shot accuracy on standard benchmarks and surpasses supervised methods by over 20% in Recall@1 on the challenging LO-UCV dataset with large oblique angles. This work highlights that principled alignment of pre-trained features can effectively bridge the cross-view gap, estab-lishing a robust and training-free paradigm for real-world CVGL. The relevant code is made available at: 
+
+Keywords: Cross-View Geo-Localization · Remote Sensing · Zero-Shot Inference · Training-Free Adaptation · Vision Foundation Models 
+
+1 Introduction 
+
+Cross-View Geo-Localization (CVGL) has emerged as a pivotal technology in autonomous drone navigation and urban Remote Sensing (RS). By establishing a spatial correspondence between oblique UAV images and nadir-view satellite  
+
+> ⋆
+
+Corresponding author.   
+
+> arXiv:2603.13855v1 [cs.CV] 14 Mar 2026 2J. Lu et al.
+> Fig. 1: Key challenges of zero-shot CVGL: disparity in feature distribution. Drone and satellite visual manifolds suffer severe misalignment due to inherently different viewing geometry, thus direct zero-shot matching fails under viewpoint discrepancies.
+
+maps, CVGL enables precise positioning in environments where traditional ge-olocation systems are unavailable or unreliable. Over the past decade, the rapid development of Deep Learning (DL) has advanced the accuracy of CVGL on standard benchmarks to near saturation. For instance, on widely used UAV-satellite CVGL benchmarks such as University-1652 and SUES-200, state-of-the-art (SOTA) approaches have achieved an average precision exceeding 95%. However, such high accuracy is largely confined to closed-set evaluation sce-narios. The real-world deployment of CVGL still faces significant generalization bottleneck. Existing supervised methods rely heavily on large volumes of paired UAV-satellite data, often leading to overfitting to specific sensor characteristics or geographic distributions. Consequently, these models suffer substantial ac-curacy degradation when applied to unseen regions or under different imaging conditions, thereby limiting their utility in real-world applications. The rise of Visual Foundation Models (VFMs), pretrained in meta-scale data, offers a promising pathway toward learning universal visual representations. DI-NOv3 [19], for example, has demonstrated an remarkable capability in acquiring universal visual representations with strong zero-shot generalization. Neverthe-less, we observe that a naive "plug-and-play" application of VFM features does not yield satisfactory localization accuracy. For instance, using the plain DINOv3 features with average pooling results in a Recall@1 of only 121.56% in cross-view retrieval. This accuracy gap stems from the inherent distribution shift bewteen UAV and satellite viewpoints. Specifically, drone-view images, characterized by oblique viewing geometry and varying altitudes, exhibits fundamentally differ-ent spatial and semantic layouts compared to nadir-view satellite images. This disparity leads to a severe geometric and coverage mismatch, where a comprehen-sive drone scene may correspond to only a localized patch within a satellite tile. Furthermore, unconstrained environmental clutter and redundant information in real-world scenes further hinder effective matching. Manuscript Under Review 3
+
+To bridge the cross-view gap without exhaustive fine-tuning, this paper presents a novel training-free framework for zero-shot CVGL. Instead of learning a view-transformation mapping, our approach directly aligns the feature manifold and enhances discriminative saliency. The core contributions are threefold: 
+
+– A Training-free Zero-Shot CVGL Paradigm. We introduce a localization framework that operates without training or paired data. By leveraging the inherent semantic knowledge embeded in pre-trained VFMs, we demonstrate that high localization accuracy can be achieved in a fully zero-shot manner, substantially improving adaptability in diverse real-world scenarios. 
+
+– Manifold Alignment via Orthogonal Transformation. To address the distribu-tion shift across viewpoints, we introduce a domain-wise alignment strategy. Using Orthogonal Procrustes analysis, we derive an optimal linear transfor-mation that aligns the heterogeneous feature distributions into a common metric space, effectively improving the retrieval accuracy. 
+
+– Multi-Granularity Saliency-Aware Similarity Modeling. We design a hierar-chical feature aggregation scheme that integrates Generalized Mean (GeM) pooling with scale-weighted R-MAC. It explicitly captures salient landmarks at multiple spatial granularities, ensuring robust similarity computation un-der substantial imaging variation and background interference. 
+
+2 Related Work 
+
+2.1 Cross-View Geo-Localization 
+
+CVGL aims to geo-localize query drone-captured image by matching it against a database of geo-referenced satellite imagery, fundamentally framing it as an image retrieval problem across heterogeneous viewpoints [23, 37]. Advances in DL-based feature representation have been a primary driver of progress in this field [5]. Early DL approaches commonly employed Siamese networks [22] or metric learning objectives [12] to learn embeddings that minimize the distance between correctly matched image pairs. To bridge the severe appearance gap induced by extreme viewpoint differ-ences, later work explored more sophisticated architectures and strategies. A key direction has been the use of polar transformation to geometrically align satel-lite/aerial images with ground-level panoramas [12, 17], significantly easing the learning problem and leading to substantial performance gains. Concurrently, research has evolved from relying solely on global features to incorporating local and structural information. This includes methods that perform spatial-aware feature aggregation [30], employ optimal transport to model spatial correspon-dences [18], and design explicit part-based or local pattern networks to capture fine-grained details [20, 24]. The introduction of vision transformers marked an-other leap, leveraging their strength in modeling long-range dependencies to en-hance feature representation and extract robust geometry-aware features [30,36]. Recent frameworks have moved beyond one-to-one retrieval by integrating joint retrieval-and-calibration pipelines that account for positional offsets, enabling 4 J. Lu et al. 
+
+finer-grained localization [25]. Furthermore, emerging generative methods, such as generative adversarial networks and diffusion models, are being investigated to synthesize cross-view imagery [31], offering a promising path to alleviate data scarcity and viewpoint-gap challenges in CVGL. Despite these advances, CVGL faces persistent bottleneck problems in cross-domain generalization. A central issue arises from the simplified assumptions underlying many benchmark datasets. Existing benchmarks often assume per-fect center alignment between ground and aerial image pairs [30], an assumption that is over-simplified in practical applications. Real-world scenarios frequently involve large positional offsets, which substantially degrade global feature sim-ilarity, introduces disruptive elements, and demands robust partial matching capabilities that many methods lack [29]. Consequently, generalizing CVGL to unseen geographic regions and handling unconstrained viewpoint and positional discrepancies remains an open and critical challenge. 
+
+2.2 Unsupervised & Zero-Shot Learning 
+
+The evolution of unsupervised learning, particularly moving toward zero-shot paradigms, has transformed computer vision from early methods like simple clustering and autoencoders to modern self-supervised frameworks centered on contrastive learning and masked image modeling (MIM). Classic contrastive ap-proaches, such as MoCo [7], leverage momentum updates and queue mechanisms to learn highly discriminative feature representations from unlabeled data. A re-cent survey [6] highlights that MIM-based methods like MAE further enhance contextual semantic understanding by reconstructing masked regions. A clear trend is the growing shift toward zero-shot learning [13], which utilizes large-scale pretrained vision-language models to generalize to unseen categories [34].Recent literature indicates that the research focus has expanded beyond pure image-feature alignment to leveraging natural language descriptions and multimodal foundation models for open-vocabulary understanding and reasoning [27, 32]. This shift aims to overcome the limitations of traditional models confined to closed-set training and evaluation. Unsupervised CVGL face significant challenges due to the severe viewpoint discrepancy. In [15] conditional GANs are employed for cross-view image synthe-sis to bridge the domain gap. OriCNN [12] introduced orientation as a geometric prior for unsupervised feature alignment. Recent research has increasingly ex-plored leveraging large-scale unlabeled data. For instance, in [10] an unsupervised paradigm is proposed to addresses the cold-start problem via pseudo-labeling and correspondence-free projection, enabling robust localization without GPS labels. Concurrently, cluster-based approach first generate intra-view pseudo-labels via clustering and dual-contrastive learning, then align representations across views using cosine similarity [2]. Another direction focuses on adapter-based methods that use vision foundation models as backbones, incorporating lightweight adapters to project VFM features into a uniform space, training them via asymmetric contrastive learning on pseudo-labeled samples [11]. However, achieving truly unsupervised zero-shot CVGL remains a formidable challenge. Manuscript Under Review 5 
+
+> Fig. 2: The proposed VFM-Loc, a zero-shot CVGL framework, operates in three training-free stages: (1) Feature extraction using a VFM; (2) Hierarchical discrimi-native clue extraction via GeM pooling and scale-weighted R-MAC; (3) Statistical manifold alignment based on domain-wise PCA and orthogonal Procrustes rotation, projecting heterogeneous features into a unified embedding space for retrieval.
+
+While existing methods reduce the dependency on annotated data, they still re-quire domain-specific finetuning with labels. Meanwhile, VFMs still struggle with extreme geometric deformations. Current solutions usually depend on domain-specific unsupervised adaptation or few-shot fine-tuning to align feature spaces, which limits their ability to achieve fully plug-and-play, zero-shot localization on unseen data. 
+
+3 Methodology 
+
+3.1 Problem Formulation and System Overview 
+
+In zero-shot CVGL, we aim to retrieve the correct satellite image Ig ∈ G given a drone query Iq ∈ Q , with no task-specific tuning. As shown in Fig. 2, we adopt a frozen VFM encoder Φ(·) to map images into a D-dimensional feature space. 
+
+Iq , I g are then encoded into global feature vectors zd, zs via pooling operations. The core challenge stems from distributional shifts between the drone domain 
+
+D and the satellite domain S. Due to drastic viewpoint difference (oblique vs. nadir), the learned representations of a same region exhibit heterogeneity in the VFM space, i.e., P (z|D )̸ = P (z|S ). This gap appears not merely as a feature-space translation, but as an anisotropic manifold distortion. Consequently, direct similarity metrics such as Euclidean distance ∥zd − zs∥2 are thus dominated by domain variance rather than geographic identity. Our proposed VFM-Loc framework addresses this challenge through three sequential stages without any backpropagation. First, as described, frozen VFM features are extracted. Second, a statistical manifold alignment pipeline applies 6 J. Lu et al. 
+
+domain-wise PCA followed by Orthogonal Procrustes (OP) analysis. This step finds an optimal linear transformation T that minimizes cross-domain diver-gence while preserving semantic topology, effectively aligning T (zd) and zs in a common metric space. Third, we refine the alignment by integrating a hierarchi-cal scheme that combines GeM pooling with scale-weighted Regional Maximum Activation of Convolutions (R-MAC). This multi-granularity fusion accentuates discriminative landmark regions and suppresses background clutter, resulting in robust aggregated features for similarity ranking. 
+
+3.2 Hierarchical Extraction of Discriminative Visual Clues 
+
+A critical prerequisite for alignment is the extraction of robust descriptors that are invariant to environmental noise yet sensitive to geometric landmarks. Stan-dard Global Average Pooling (GAP) and Global Max Pooling (GMP) repre-sent two extremes of information aggregation. GAP ( p = 1 ) treats all spatial activations equally, which tends to filter discriminative landmarks with non-informative background noise. Conversely, GMP ( p → ∞ ) only considers the single peak activation, making it highly susceptible to transient outliers or spec-ular reflections. To achieve a superior balance, we employ GeM Pooling, defined for a feature map X ∈ RC×H×W as: 
+
+f = [ f1, . . . , f k, . . . , f C ]⊤, fk = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+xpk,i 
+
+!1/p 
+
+(1) where p is the pooling parameter. Mathematically, GeM acts as a differen-tiable soft-maximum. As p increases, the pooling operation assigns exponentially greater weight to higher-intensity activations, which in the context of VFMs, typ-ically correspond to discriminative visual clues such as building corners or road intersections. By setting p > 1, GeM effectively suppresses the influence of low-activation regions (e.g., grass, shadows) while avoiding the over-fitting to single pixels seen in GMP. This focused design ensures that the resulting descriptor captures essential structural cues of a scene, providing a more stable input for the subsequent manifold alignment. Building upon the GeM-refined features, we further address the global-local mismatch by introducing a R-MAC strategy. As the UAV perspective often cap-tures only a portion of the landmarks present in a satellite tile, we partition the feature map into multi-scale grids ( n × n) to encode spatial structures at varying granularities. To suppress local noise and retain global context, a scale-dependent decay factor 1/n α weights the contribution of each level, yielding the aggregated descriptor: 
+
+Vagg = Norm (X
+
+> n
+
+1
+
+nα GeM (Fn))  (2) where α is a decay factor that controls the confidence of local vs. global clues. Manuscript Under Review 7
+
+This formulation prioritizes the global context (where the VFM’s zero-shot reliability is highest) while allowing local discriminative clues to refine the match-ing score. The resulting hierarchical descriptor Vagg ensures that spatial discrep-ancies do not lead to catastrophic matching failures, significantly enhancing the framework’s robustness in open-set environments. 
+
+3.3 Statistical Manifold Alignment 
+
+Despite the robustness of extracted clues, the zero-shot performance of VFMs is frequently hampered by domain shift in the feature space. We attribute this to a misalignment in the statistical distribution of cross-view features, despite their shared underlying semantics. To rectify this, we introduce a dual-stage alignment pipeline comprising domain-wise PCA Pre-conditioning and OP rotation. 
+
+Domain-wise PCA Pre-conditioning: This stage is to discard redundant feature dimensions and suppress non-semantic noise within the raw VFM output. We first apply Principal Component Analysis (PCA) independently to the query and gallery manifolds. Let X ∈ RN ×D be the feature extracted from a specific domain (Drone or Satellite), we first compute the domain-specific mean vector: 
+
+μ = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+xi
+
+The first-order alignment is then achieved by shifting the disparate manifolds to a common origin through a zero-centering operation: 
+
+¯X = X − 1μ⊤
+
+We subsequently derive the domain-specific covariance matrix: 
+
+Cpca = 1
+
+N − 1 ¯X⊤ ¯X
+
+and perform eigen-decomposition such that: 
+
+Cpca = PΛP ⊤
+
+where P is the matrix of eigenvectors and Λ is the diagonal matrix of eigenvalues. By selecting the top d eigenvectors Pd ∈ RD×d that capture the majority of the variance, we project the centered features into a de-noised subspace: 
+
+X′ = ¯XP d
+
+This projection isolates the most significant spatial-semantic variations while discarding low-variance components typically associated with environmental noise. By projecting the features onto their primary principal components, we isolate the most significant spatial-semantic variations, thereby preparing the disparate manifolds for a more refined linear alignment. 8 J. Lu et al. 
+
+Orthogonal Procrustes Alignment: Following PCA-based centering, we apply Orthogonal Procrustes (OP) alignment to transform the drone and satel-lite feature manifolds into a common metric space. Given the centered features 
+
+XD (Drone) and XS (Satellite), we solve for the optimal orthogonal transfor-mation R between the two domains: 
+
+min  
+
+> R
+
+∥XD R − XS ∥2 
+
+> F
+
+, s.t. R⊤R = I (3) The solution is obtained via Singular Value Decomposition (SVD) of the cross-domain covariance matrix: 
+
+UΣV ⊤ = SVD (X⊤ 
+
+> S
+
+XD ) (4) where U and V are orthogonal matrices representing the principal axes of the satellite and drone manifolds, and Σ contains the singular values representing the strength of these correlations. This decomposition distills the principal shared mapping directions between the two heterogeneous domains. To enforce strict or-thogonality (i.e., R⊤R = I), we discard the scaling component Σ and recombine the singular vectors to derive an operator consisting purely of rotation: 
+
+R = VU ⊤ (5) This alignment preserves the intrinsic semantic topology of the VFM space while matching the statistical distributions across domains. Consequently, the drone-view manifold is robustly transformed toward the satellite-view manifold with training-free computation, efficiently bridging the viewpoint gap and sub-stantially enhancing retrieval accuracy. 
+
+4 Experiments 
+
+4.1 CVGL Benchmarks and Evaluation Metrics 
+
+We evaluate the proposed VFM-Loc on three CVGL benchmarks to comprehen-sively assess its performance and generalizability. The standard University-1652 dataset is used to establish baseline and compare against SOTA methods. We further employ SUES-200, which introduces complexity through varied UAV flight altitudes, to test robustness under diverse observational conditions. To rigorously evaluate real-world generalization, we introduce a new dataset, the Large-Oblique UAV-Satellite Cross-View (LO-UCV) dataset. This dataset fea-tures greater scene diversity and significant oblique viewing angles, presenting a more challenging and practical testing scenario. Detailed specifications of all datasets are provided in Table 1. We specifically developed the LO-UCV dataset to overcome the common issues of scene monotony and limited viewpoint variation in existing CVGL datasets. Utilizing a fixed-wing UAV flying at 500 meters with an oblique shoot-ing angle exceeding 45 °, the dataset captures 3,407 high-resolution (3840 ×2160) images. These images encompass a wide range of RS scene types, including roads, Manuscript Under Review 9
+
+Table 1: Statistical summary of the experimental datasets. Datasets Platform GSD / Resolution Image Size Data Size Key Characteristics University-1652 [33] UAV+Sat Varies 512 ×512 146,580 images Multi-view, multi-source benchmark SUES-200 [35] UAV+Sat 0.13m - 0.92m 512 ×512 40,200 images Four distinct UAV flight altitudes LO-UCV (constructed) UAV+Sat UAV: 0.2m, Sat: 0.6m UAV: 3840 ×2160, Sat: 768 ×768 3,471 images Large oblique angle (>45 °), diverse scenes          
+
+> (a) Mountain (b) Park (c) Farmland (d) Residential (e) Road
+
+Fig. 3: Sample image pairs from the constructed LO-UCV dataset. Top: satellite im-ages; Bottom: high-resolution images from fixed-wing UAVs with large tilt (>45 °). 
+
+villages, urban areas, farmland, rivers, and parks, across distinct geographic locations, ensuring both diversity and representativeness. Corresponding high-quality satellite images were obtained from the Google Satellite platform based on the UAV’s GPS coordinates. The LO-UCV dataset is split into training and test sets in a 7:3 ratio, with strict separation to prevent any scene overlap. Figure 3 illustrates typical challenging scenarios from the LO-UCV dataset, showcasing its rich viewpoint variations and complex scene content. This dataset provides a robust test data for evaluating the generalization capability and practical ap-plicability of CVGL algorithms. Following the standard CVGL evaluation protocol [4], we employ Recall@1 and Average Precision (AP) as our primary metrics. Recall@1 reports the rate at which the true match is retrieved as the top result, reflecting localization pre-cision under the strictest condition. AP, defined as the area under the precision-recall curve, evaluates the overall retrieval quality across all recall levels, offering a more comprehensive and threshold-robust assessment. 
+
+4.2 Ablation Study Effectiveness of the proposed modules: We conduct a systematic ablation study to validate each component of VFM-Loc. As reported in Table 2, the vanilla DINOv3 features yield only 21.56% R@1 (drone →satellite), underscoring the challenge posed by the cross-view domain gap. Replacing average pooling with class token pooling, a classification mechanism provided in Dinov3, offers a slight gain (+4.84% R@1), but remains far from satisfactory for practical usage. The introduction of our SMA module brings a dramatic improvement. By aligning the two domains via PCA and OP, SMA boosts the best R@1 to 73.30%, an absolute gain of +51.74% over the baseline. This dramatic increase indicates 10 J. Lu et al. 
+
+Table 2: Ablation study on University-1652. 
+
+Methods Drone → Satellite Satellite → Drone R@1 R@5 R@10 R@top1 AP R@1 R@5 R@10 R@top1 AP 
+
+Baseline: DINOv3 (+avg pooling) 21.56% 40.82% 50.83% 49.20% 31.38% 13.55% 24.25% 30.39% 83.88% 9.57% 
+
+A. Replace pooling strategies 
+
+avg → cls 26.40% 47.45% 57.16% 55.65% 36.79% 23.54% 36.23% 42.08% 83.02% 13.13% avg → GeM 7.04% 20.57% 28.92% 27.50% 14.55% 18.40% 30.53% 40.94% 92.44% 11.79% 
+
+∆ vs. baseline (best) ↑ 4.84 ↑ 6.63 ↑ 6.33 ↑ 6.45 ↑ 5.41 ↑ 10.00 ↑ 12.00 ↑ 11.69 ↓ 0.86 ↑ 3.56 
+
+B. Apply PCA directly (failed attempt) 
+
+DINOv3 (avg) + PCA 0.00% 0.00% 0.29% 1.00% 0.08% 0.70% 2.62% 4.55% 4.17% 2.59% 
+
+∆ vs. baseline ↓ 21.56 ↓ 40.82 ↓ 50.54 ↓ 48.20 ↓ 31.30 ↓ 12.85 ↓ 21.63 ↓ 25.84 ↓ 79.71 ↓ 6.98 
+
+C. SMA (PCA + OP) 
+
+DINOv3 (avg) + PCA + OP 68.74% 91.39% 95.35% 94.91% 78.78% 88.73% 97.43% 98.86% 99.86% 67.84% DINOv3 (cls) + PCA + OP 63.72% 88.83% 93.66% 93.06% 74.88% 83.17% 95.86% 98.00% 100.00% 61.13% DINOv3 (GeM) + PCA + OP 73.30% 93.77% 96.96% 96.58% 82.42% 90.73% 98.15% 99.14% 100.00% 72.33% 
+
+∆ vs. baseline ↑ 51.74 ↑ 52.95 ↑ 46.13 ↑ 47.38 ↑ 51.04 ↑ 77.18 ↑ 73.90 ↑ 68.75 ↑ 16.12 ↑ 62.76 
+
+D. VFM-Loc (PCA + OP + R-MAC) 
+
+DINOv3 (avg) + PCA + OP + R-MAC 68.25% 91.03% 95.18% 94.68% 78.36% 88.16% 97.29% 98.57% 99.86% 67.16% DINOv3 (cls) + PCA + OP + R-MAC 68.27% 91.02% 95.19% 94.68% 78.35% 88.16% 97.29% 98.57% 99.86% 67.16% DINOv3 (GeM) + PCA + OP + R-MAC 74.42% 94.16% 97.17% 96.91% 83.18% 90.44% 98.43% 98.86% 100.00% 72.41% 
+
+∆ vs. baseline ↑ 52.86 ↑ 53.34 ↑ 46.34 ↑ 47.71 ↑ 51.80 ↑ 76.89 ↑ 74.18 ↑ 68.47 ↑ 16.12 ↑ 62.84 
+
+(a) Original pretrained (DINOv3) features ex-hibit a clear viewpoint gap; 
+
+(b) Features processed by our SMA module show significantly improved alignment. 
+
+Fig. 4: t-SNE visualization of cross-view features before and after manifold alignment. 
+
+that the primary obstacle for zero-shot cross-view localization is not a lack of semantic discriminability in the foundation model, but the statistical discrepancy between the two viewing domains. SMA effectively aligns the feature manifolds of drone and satellite imagery into a common metric space, enabling robust retrieval without any task-specific training. The integration of GeM pooling and R-MAC further refines the representa-tion. The complete pipeline (SMA + GeM + R-MAC) achieves 74.42% R@1 on drone →satellite and 90.44% R@1 on satellite →drone retrieval, surpassing the baseline by +52.86% and +76.89%, respectively. The results confirm that SMA alleviates the fundamental domain gap, while GeM and R-MAC consistently enhance feature saliency, collectively enabling accurate zero-shot CVGL. 
+
+Visualization on Manifold Alignment: To validate the impact of the SMA module, we further visualize the cross-view feature distributions using t-SNE. Colors indicate different geographic locations sampled randomly from the dataset; Manuscript Under Review 11  
+
+> Fig. 5: Similarity response visualization before and after manifold alignment.
+
+shapes denote the viewpoint (triangles represent satellite-view features, and cir-cles represent UAV-view features). As shown in Fig. 4(a), before applying SMA, feature clusters are clearly separated by viewpoint: samples of the same color (i.e., same location) are split into distinct groups, with satellite triangles appear-ing far from their corresponding UAV circles. This reveals a pronounced domain gap between the two domains. After applying SMA (Fig. 4(b)), satellite features migrate toward the centers of their respective color clusters, aligning closely with corresponding UAV samples. This visual result confirms that SMA successfully brings heterogeneous cross-view distributions into a unified metric space, a key factor for robust zero-shot cross-view retrieval. 
+
+Visualization of Similarity Responses To qualitatively evaluate the pro-posed manifold alignment module (e.g., SMA), we visualize spatial similarity distributions of typical UAV-satellite image pairs before and after alignment. We extract patch-level features from DINOv3, retaining their spatial layout. After performing domain-wise PCA and Orthogonal Prostrustes analysis, the resulting rotation matrix is applied to the UAV patch features. For each spatial location, we compute cosine similarity between the UAV features and the global pooled satellite feature, then normalize and upsample to generate heatmaps. The visualization in Fig. 5 reveals that SMA significantly mitigates the cross-view distribution shift present in raw VFM features. Before alignment, similarity 12 J. Lu et al. 
+
+Table 3: Ablation study on the decay factor α used in R-MAC.                                                                                                          
+
+> αDrone →Satellite Satellite →Drone R@1 R@5 R@10 R@top1 AP R@1 R@5 R@10 R@top1 AP 173.29 93.77 96.98 96.63 82.36 89.30 98.15 98.86 100.00 71.80 273.80 93.95 97.13 96.75 82.74 89.73 98.00 98.86 100.00 72.01 374.12 94.07 97.23 96.85 82.98 90.16 98.15 98.86 100.00 72.20 474.32 94.14 97.21 96.89 83.12 90.58 98.43 98.86 100.00 72.33 574.38 94.18 97.18 96.89 83.16 90.16 98.43 98.86 100.00 72.39 674.42 94.16 97.17 96.91 83.18 90.44 98.43 98.86 100.00 72.41 774.42 94.18 97.17 96.89 83.18 90.58 98.43 98.86 100.00 72.42 874.40 94.17 97.16 96.89 83.18 90.58 98.57 98.86 100.00 72.43
+> 974.42 94.17 97.16 96.88 83.18 90.58 98.57 98.86 100.00 72.43
+
+heatmaps are often diffuse and activated by background clutter, reflecting the ge-ometric and semantic gap between oblique drone and nadir satellite viewpoints. After alignment, the feature responses become highly concentrated and consis-tently localize geometrically stable structures, such as distinctive roof outlines and road intersections, even under substantial viewpoint variation. This indicates that the learned orthogonal transformation successfully projects the heteroge-neous feature manifolds into a shared metric space, suppressing view-specific noise while enhancing discriminative cross-view landmarks. The results validate that our training-free approach with principled manifold alignment yields reli-able local matching cues, which underpin the strong generalization performance observed in our quantitative experiments. 
+
+Impact of α in R-MAC: We further analyze the sensitivity of the R-MAC decay factor α, which balances global context against local discriminative clues. As shown in Table 3, performance remains consistently high across a wide range of α. An initial rise in α shifts the weighting toward more stable global structures, improving results. The best and most stable performance is achieved when α lies between 6 and 9, confirming the stability of the hierarchical weighting scheme. We select α = 6 as our default setting, as it consistently delivers near-best results across both retrieval tasks. 
+
+Effect of Different VFMs: We evaluate four representative VFMs, includ-ing SAM3 [1], DINOv3 [19] and Radio [8, 14], to analyze how their inherent designs affect zero-shot CVGL performance. Four representative VFMs are eval-uated to analyze how their pre-training objectives and architecture design af-fect zero-shot CVGL performance: SAM3 [1], DINOv3 [19], RadioV4-huge, and RadioV4-s0400 [14]. As summarized in Table 4, VFMs pre-trained primarily for dense prediction (e.g., the segmentation-oriented SAM3) perform poorly due to their limited discriminative embedding ability. In contrast, models optimized for generic representation learning through self-supervised (DINOv3) or large-scale contrastive objectives (RadioV4) achieve substantially higher accuracy. Among them, the larger RadioV4-huge delivers the best overall results, highlighting the positive impact of model scale and pre-training data volume. Manuscript Under Review 13 
+
+Table 4: Accuracy of the VFM-Loc using different VFMs (University-1652). VFMs Params (M) FLOPs (G) Drone → Satellite Satellite → Drone R@1 R@5 R@10 R@top1 AP R@1 R@5 R@10 R@top1 AP SAM3 [1] 838.21 2514.58 55.49 78.32 84.88 81.60 60.69 66.90 83.74 87.59 98.15 30.94 DINOv3 [19] 85.67 12.93 74.42 94.16 97.17 96.91 83.18 90.44 98.43 98.86 100.00 72.41 RadioV4-H [14] 651.65 129.60 76.36 94.90 97.55 97.24 84.53 92.58 98.00 99.43 100.00 75.86             
+
+> RadioV4-S0400M [14] 431.24 84.68 72.02 92.48 96.24 95.74 81.08 90.01 98.43 99.14 100.00 71.43
+
+Table 5: Comparison with SOTA methods on the University-1652 dataset (R@1% and AP%). S: Supervised; U: Unsupervised; Z: Zero-shot.                                                                                   
+
+> Type Label-free Training-free Method Drone →Sat Sat →Drone Inference Costs
+> R@1 AP R@1 AP Params (M) FLOPs (G)
+> S××
+> University-1652 [33] 59.69 64.80 73.18 59.40 52.52 24.29 PCL [21] 79.47 83.63 87.69 78.51 --Sample4Geo [4] 92.65 93.81 95.14 91.39 84.57 90.24 DAC [28] 94.67 95.50 96.43 93.79 96.50 90.24 QDFL [9] 95.00 95.83 97.15 94.57 108.87 80.24
+> U✓×
+> EM-CVGL [11] 70.82 75.36 79.03 61.03 1140+6.30 372.19+18.92 Wang et al. [26] 85.95 90.33 94.01 82.66 --UniABG [2] 93.62 94.61 95.43 93.29 96.50 45.12
+> Z✓✓VFM-Loc(DINOv3) 74.42 83.18 90.44 72.41 85.67 12.93
+> VFM-Loc(RadioV4) 76.36 84.53 92.58 75.86 431.24 84.68
+
+An important trade-off emerges when considering computational efficiency. While RadioV4-huge attains top accuracy, it entails significantly higher param-eters and FLOPs compared to DINOv3 ( > 5 times in computation costs). DI-NOv3 provides a highly favorable efficiency-accuracy balance: its performance is only marginally lower than that of RadioV4-huge, yet it is dramatically more efficient. Therefore, considering the trade-off for practical zero-shot deployment, we adopt DINOv3 as the primary backbone for all subsequent experiments. 
+
+4.3 Comparative Experiments Quantitative Comparisons with SOTA: To thoroughly evaluate our zero-shot approach, we compare it with leading supervised (S) and unsupervised (U) methods on three CVGL benchmarks. Supervised baselines include PCL [21], Sample4Geo [4] and DAC [28]; unsupervised baselines are EM-CVGL [11] and UniABG [2]. It is worth noting that both S and U methods necessitate training on the target dataset, while our method (Z) operates in a fully zero-shot manner. As shown in Table 5, our VFM-Loc (RadioV4) achieves a competitive R@1 of 76.36% for Drone →Satellite and 92.58% for Satellite →Drone queries on the University-1652 dataset. Notably, this zero-shot method already outperforms several prior unsupervised approaches that require explicit training on the data, validating that a strong baseline can be established using only pre-trained VFMs. While recent unsupervised methods (e.g., UniABG) obtain higher accuracy, they necessitate computationally expensive training or fine-tuning on the target dataset. In contrast, our training-free framework demonstrates the effectiveness of manifold alignment and saliency modeling in adapting off-the-shelf VFM fea-tures to the CVGL task. 14 J. Lu et al. 
+
+Table 6: Comparison of performance with SOTA methods on the SUES-200 dataset.                                                                                                                                                       
+
+> Type Method Drone →Satellite Satellite →Drone
+> 150m 200m 250m 300m 150m 200m 250m 300m R@1 AP R@1 AP R@1 AP R@1 AP R@1 AP R@1 AP R@1 AP R@1 AP
+> S
+> SUES-200 [35] 55.65 61.92 66.78 71.55 72.00 76.43 74.05 78.26 75.00 55.46 85.00 66.05 86.25 69.94 88.75 74.46 FSRA [3] 68.25 73.45 83.00 85.99 90.68 92.27 93.46 91.95 83.75 76.67 90.00 85.34 93.75 90.17 95.00 92.03 MCCG [16] 82.22 85.47 89.38 91.41 93.82 95.04 95.07 96.20 93.75 89.72 93.75 92.21 96.25 96.14 98.75 96.64 DAC [28] 96.80 97.54 97.48 97.97 98.20 98.62 97.58 98.14 97.50 94.06 98.75 96.66 98.75 98.09 98.75 97.87 QDFL [9] 93.97 95.42 98.25 98.67 99.30 99.48 99.31 99.48 98.75 95.10 98.75 97.92 100.00 99.07 100.00 99.07
+> UWang et al. [26] 76.90 84.95 87.88 92.60 92.98 95.66 95.10 96.92 87.50 74.81 92.50 87.15 96.25 91.20 98.75 94.52 UniABG [2] 92.40 93.95 97.32 97.92 98.07 98.55 98.67 98.98 98.75 91.54 98.75 97.06 100.00 98.32 98.75 97.58
+> ZVFM-Loc (ours) 99.62 99.35 99.52 99.33 99.63 99.38 99.60 99.38 98.75 99.22 98.75 99.32 98.75 99.36 98.75 99.36
+
+Table 7: Comparison with SOTA methods on the constructed LO-UCV dataset.                          
+
+> Type Method Drone →Sat Sat →Drone
+> R@1 (%) AP (%) R@1 (%) AP (%)
+> SSample4geo [4] 53.07 62.02 59.09 53.85 DAC [28] 67.83 74.01 63.63 58.65
+> UEM-CVGL [11] 47.27 57.27 45.45 47.28 UniABG [2] 44.62 53.06 40.91 43.02
+> ZVFM-Loc (ours) 89.84 94.63 95.31 91.17
+
+We further analyze the inference efficiency of each method as summarized in Table 5. The computational statistics for some baselines are absent, as their official implementations are unavailable. For EM-CVGL, a two-stage method, the reported figures correspond to the sum of both stages. Among methods with available data, VFM-Loc (DINOv3) achieves the lowest FLOPs while delivering competitive accuracy. Coupled with its training-free paradigm, which entirely eliminates training overhead, our VFM-Loc presents itself as the most compu-tationally lightweight and readily deployable approach. On the more complex SUES-200 dataset, our method sets a new state-of-the-art. As detailed in Table 6, for the Drone →Satellite task, VFM-Loc achieves R@1 scores consistently exceeding 99.5% across all altitudes, significantly out-performing the best supervised baseline (QDFL). It delivers a performance gain of over 5.6% at the most challenging 150m height. For the Satellite →Drone task, our method either matches or exceeds the top supervised method across all set-tings. This highlights its capability to bridge the cross-view gap in complex urban scenarios without any fine-tuning. The most compelling advantage of our method is observed on the LO-UCV dataset, characterized by significant viewpoint differences and limited data. As presented in Table 7, both supervised and unsupervised methods struggle on this benchmark. In contrast, our VFM-Loc achieves 89.84% and 95.31% R@1 for Drone →Sat and Sat →Drone tasks, respectively. This constitutes a substantial accuracy leap, surpassing the best supervised method by over 20% ∼30% in R@1 for the two query directions, underscoring superior generalization under data-scarce and geometrically difficult conditions. Manuscript Under Review 15 
+
+Evaluation of Cross-Dataset Generalization To evaluate cross-dataset transfer, we conduct a systematic generalization experiment. The compared methods are first trained on two public datasets, University-1652 and SUES-200, and then directly tested on the unseen LO-UCV dataset. This setup simu-lates real-world deployment of a trained model to a new geographic region with distinct terrain and lanc-cover characteristics. Results under this protocol (Table 8) show that supervised and unsupervised methods achieve only moderate and varying performance. When transfer from University-1652 and tested on LO-UCV, unsupervised EM-CVGL performs best for Drone →Satellite, with Recall@1 of 59.04%. For Satellite →Drone, UniABG achieves the top Recall@1 of 54.55%. When trained on SUES-200, the supervised DAC method reaches the highest performance across both query directions, with Recall@1 scores of 55.20% and 63.64% respectively. Notably, unsupervised meth-ods exhibit considerable inconsistency across training datasets. In sharp contrast, our VFM-Loc operates in a fully zero-shot manner, re-quiring no training on any source dataset. It demonstrates exceptional general-ization, attaining 89.84% Recall@1 for Drone →Satellite and 95.31% for Satel-lite →Drone. This represents a decisive lead over all trained baselines, with im-provements exceeding +30% in Recall@1. This result strongly validates the su-perior transferability and robustness of our approach, underscoring its practical potential for deployment in unseen geographic environments. 
+
+Table 8: Cross-Dataset Generalization Capability tested on LO-UCV Dataset                                                                                                              
+
+> Methods Training Dataset Drone →Sat Sat →Drone
+> Recall@1 Recall@5 Recall@10 Recall@top1 AP Recall@1 Recall@5 Recall@10 Recall@top1 AP Sample4geo University-1652 46.42 79.10 93.09 46.42 53.74 50.00 50.00 54.55 54.55 43.60 DAC University-1652 50.60 82.25 97.70 50.60 57.64 50.00 50.00 54.55 54.55 50.54 EM-CVGL University-1652 59.04 97.01 100.00 59.04 66.77 50.00 68.18 68.18 68.18 49.39 UniABG University-1652 51.54 91.13 97.87 51.54 59.36 54.55 68.18 68.18 68.18 50.47 Sample4geo SUES-200 48.55 91.81 96.42 48.55 57.75 50.00 59.09 59.09 59.09 54.51 DAC SUES-200 55.20 89.68 96.84 55.20 62.93 63.64 68.18 68.18 68.18 55.70 EM-CVGL SUES-200 47.27 91.98 99.74 47.27 57.27 45.45 59.09 63.64 63.64 47.28 UniABG SUES-200 32.68 78.07 98.89 32.68 43.39 40.91 45.45 45.45 50.00 39.76 VFM-Loc (Ours) None 89.84 99.97 100 89.84 94.63 95.31 98.44 98.44 98.44 91.17
+
+Qualitative Comparisons: In Fig. 6 we presents a qualitative comparison be-tween our method and the SOTA unsupervised methods (EM-CVGL and Uni-ABG). On the university, VFM-Loc correctly retrieves the satellite match for a drone query amid repetitive building facades, while EM-CVGL fails due to texture ambiguity. On the SUES, VFM-Loc distinguishes visually similar struc-tures under occlusion and lighting variations, whereas unsupervised methods misalign due to shallow feature matching. On the challenging LO-UVB bench-mark, VFM-Loc handles extreme viewpoint disparities by aligning hierarchical visual cues (e.g., landforms, street layouts), while competitors collapse to irrel-16 J. Lu et al. (a)     
+
+> (b)
+> (c)
+> (d)
+> (e)
+> Query EM-CVGL UniABG VFM-Loc Fig. 6: Comparison of qualitative results obtained on (a) University, (b)(c) SUES and (d)(e) LO-UCV.
+
+evant retrieval. These results prove the robustness of our VFM-Loc to scene complexity, viewpoint gaps, and structural redundancy. In summary, the comparative experiments across varied RS data reveal the distinct strengths of VFM-Loc. It provides a strong zero-shot baseline on stan-dard benchmarks, delivers leading accuracy on complex multi-height urban sce-narios, and demonstrates superior robustness under challenging, low-data regimes. These results confirm that by leveraging general visual features with a princi-pled alignment strategy, VFM-Loc offers an advantageous balance of high per-formance, exceptional adaptability, and minimal data dependency, establishing a new practical paradigm for CVGL. 
+
+5 Conclusion 
+
+This work addresses the critical challenge of generalizing CVGL to unconstrained, real-world scenarios. We present VFM-Loc, a novel training-free framework that effectively bridges the severe viewpoint gap by aligning the discriminative visual hierarchies inherent in pre-trained VFMs. Our core contribution is a principled, two-stage strategy. First, we introduce a hierarchical clue extraction mechanism to generate robust multi-scale descriptors that emphasize stable geographical landmarks. Second, we develop a statistical manifold alignment pipeline that projects heterogeneous drone and satellite features into a unified, comparable metric space without any learning. Extensive experiments on multiple benchmarks validate the effectiveness of our approach. VFM-Loc establishes a strong zero-shot baseline on standard benchmarks and demonstrates exceptional generalization. Notably, on the most challenging dataset with large oblique angles and limited data, our method achieves a performance gain exceeding 20% in Recall@1 over the best supervised alternative. These results confirm that aligning pre-trained feature manifolds Manuscript Under Review 17 
+
+through a lightweight, data-efficient process can unlock the practical potential of VFMs for robust and scalable geo-localization, offering a promising paradigm for deployment in diverse and unseen environments. 
+
+References 
+
+1. Carion, N., Gustafson, L., Hu, Y., Debnath, S., Hu, R., Surís, D., Feichtenhofer, C.: Sam 3: Segment anything with concepts. arXiv preprint arXiv:2511.16719 (2025) 2. Chen, C., Chen, Q., Yang, B., Zhang, X.: Uniabg: Unified adversarial view bridg-ing and graph correspondence for unsupervised cross-view geo-localization. ArXiv 
+
+abs/2511.12054 (2025) 3. Dai, M., Hu, J., Zhuang, J., Zheng, E.: A transformer-based feature segmentation and region alignment method for uav-view geo-localization. IEEE Transactions on Circuits and Systems for Video Technology 32 (7), 4376–4389 (2022) 4. Deuser, F., Habel, K., Oswald, N.: Sample4geo: Hard negative sampling for cross-view geo-localisation. 2023 IEEE/CVF International Conference on Computer Vi-sion (ICCV) pp. 16801–16810 (2023) 5. Durgam, A., Paheding, S., Dhiman, V., Devabhaktuni, V.: Cross-view geo-localization: a survey. IEEE Access (2024) 6. Gui, J., Chen, T., Zhang, J., Cao, Q., Sun, Z., Luo, H., Tao, D.: A survey on self-supervised learning: Algorithms, applications, and future trends. IEEE Trans-actions on Pattern Analysis and Machine Intelligence 46 (12), 9052–9071 (2024) 7. He, K., Fan, H., Wu, Y., Xie, S., Girshick, R.: Momentum contrast for unsupervised visual representation learning. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 9729–9738 (2020) 8. Heinrich, G., Ranzinger, M., Yin, H., Lu, Y., Kautz, J., Tao, A., Molchanov, P.: Radiov2.5: Improved baselines for agglomerative vision foundation models. In: Pro-ceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recogni-tion (CVPR). pp. 22487–22497 (2025) 9. Hu, S., Shi, Z., Jin, T., Liu, Y.: Query-driven feature learning for cross-view geo-localization. IEEE Transactions on Geoscience and Remote Sensing 63 , 1–15 (2025) 10. Li, G., Qian, M., Xia, G.S.: Unleashing unlabeled data: A paradigm for cross-view geo-localization. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 16719–16729 (2024) 11. Li, H., Xu, C., Yang, W., Yu, H., Xia, G.S.: Learning cross-view visual geo-localization without ground truth. IEEE Transactions on Geoscience and Remote Sensing (2024) 12. Liu, L., Li, H.: Lending orientation to neural networks for cross-view geo-localization. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 5624–5633 (2019) 13. Pourpanah, F., Abdar, M., Luo, Y., Zhou, X., Wang, R., Lim, C.P., Wang, X.Z., Wu, Q.J.: A review of generalized zero-shot learning methods. IEEE transactions on pattern analysis and machine intelligence 45 (4), 4051–4070 (2022) 14. Ranzinger, M., Heinrich, G., McCarthy, C., Kautz, J., Tao, A., Catanzaro, B., Molchanov, P.: C-radiov4 (tech report). preprint arXiv:2601.17237, arXiv (2026) 15. Regmi, K., Borji, A.: Cross-view image synthesis using conditional gans. In: Pro-ceedings of the IEEE conference on Computer Vision and Pattern Recognition. pp. 3501–3510 (2018) 18 J. Lu et al. 16. Shen, T., Wei, Y., Kang, L., Wan, S., Yang, Y.H.: Mccg: A convnext-based multiple-classifier method for cross-view geo-localization. IEEE Transactions on Circuits and Systems for Video Technology 34 (3), 1456–1468 (2024) 17. Shi, Y., Liu, L., Yu, X., Li, H.: Spatial-aware feature aggregation for cross-view image based geo-localization. Advances in Neural Information Processing Systems 
+
+32 (2019) 18. Shi, Y., Yu, X., Liu, L., Zhang, T., Li, H.: Optimal feature transport for cross-view image geo-localization. In: Proceedings of the AAAI Conference on Artificial Intelligence. vol. 34, pp. 11990–11997 (2020) 19. Siméoni, O., Vo, H.V., Seitzer, M., Baldassarre, F., Oquab, M., Jose, C., Puy, G., Larlus, D., Bojanowski, P.: DINOv3. arXiv preprint arXiv:2508.10104 (2025) 20. Tian, X., Shao, J., Ouyang, D., Shen, H.T.: Uav-satellite view synthesis for cross-view geo-localization. IEEE Transactions on Circuits and Systems for Video Tech-nology 32 (7), 4804–4815 (2021) 21. Tian, X., Shao, J., Ouyang, D., Shen, H.T.: Uav-satellite view synthesis for cross-view geo-localization. IEEE Transactions on Circuits and Systems for Video Tech-nology 32 (7), 4804–4815 (2022) 22. Tian, Y., Chen, C., Shah, M.: Cross-view image matching for geo-localization in urban environments. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition. pp. 3608–3616 (2017) 23. Vo, N.N., Hays, J.: Localizing and orienting street views using overhead imagery. In: European conference on computer vision. pp. 494–509. Springer (2016) 24. Wang, T., Zheng, Z., Yan, C., Zhang, J., Sun, Y., Zheng, B., Yang, Y.: Each part matters: Local patterns facilitate cross-view geo-localization. IEEE Transactions on Circuits and Systems for Video Technology 32 (2), 867–879 (2021) 25. Wang, X., Xu, R., Cui, Z., Wan, Z., Zhang, Y.: Fine-grained cross-view geo-localization using a correlation-aware homography estimator. Advances in Neural Information Processing Systems 36 , 5301–5319 (2023) 26. Wang, X., Zhang, L., Fan, Z., Liu, Y., Chen, C., Deng, F.: From coarse to fine: A matching and alignment framework for unsupervised cross-view geo-localization. Proceedings of the AAAI Conference on Artificial Intelligence 39 (8), 8024–8032 (2025) 27. Wu, P., Lu, X., Hu, H., Xian, Y., Shen, J., Wang, W.: Logiczsl: Exploring logic-induced representation for compositional zero-shot learning. In: Proceedings of the Computer Vision and Pattern Recognition Conference. pp. 30301–30311 (2025) 28. Xia, P., Wan, Y., Zheng, Z., Zhang, Y., Deng, J.: Enhancing cross-view geo-localization with domain alignment and scene consistency. IEEE Transactions on Circuits and Systems for Video Technology 34 (12), 13271–13281 (2024) 29. Xia, P., Yu, L., Wan, Y., Wu, Q., Chen, P., Zhong, L., Yao, Y., Wei, D., Liu, X., Ru, L., et al.: Cross-view geo-localization with panoramic street-view and vhr satellite imagery in decentrality settings. ISPRS Journal of Photogrammetry and Remote Sensing 227 , 1–11 (2025) 30. Yang, H., Lu, X., Zhu, Y.: Cross-view geo-localization with layer-to-layer trans-former. Advances in Neural Information Processing Systems 34 , 29009–29020 (2021) 31. Ye, J., He, J., Li, W., Lv, Z., Lin, Y., Yu, J., Yang, H., He, C.: Leveraging bev paradigm for ground-to-aerial image synthesis. In: Proceedings of the IEEE/CVF International Conference on Computer Vision. pp. 28451–28461 (2025) 32. Ye, J., Lin, H., Ou, L., Chen, D., Wang, Z., Zhu, Q., He, C., Li, W.: Where am i? cross-view geo-localization with natural language descriptions. In: Proceedings Manuscript Under Review 19 of the IEEE/CVF International Conference on Computer Vision. pp. 5890–5900 (2025) 33. Zheng, Z., Wei, Y., Yang, Y.: University-1652: A multi-view multi-source bench-mark for drone-based geo-localization. ACM Multimedia (2020) 34. Zhou, Z., Lei, Y., Zhang, B., Liu, L., Liu, Y.: Zegclip: Towards adapting clip for zero-shot semantic segmentation. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 11175–11185 (2023) 35. Zhu, R., Yin, L., Yang, M., Wu, F., Yang, Y., Hu, W.: Sues-200: A multi-height multi-scene cross-view image benchmark across drone and satellite. IEEE Trans-actions on Circuits and Systems for Video Technology 33 (9), 4825–4839 (2023) 36. Zhu, S., Shah, M., Chen, C.: Transgeo: Transformer is all you need for cross-view image geo-localization. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 1162–1171 (2022) 37. Zhu, S., Yang, T., Chen, C.: Vigor: Cross-view image geo-localization beyond one-to-one retrieval. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 3640–3649 (2021)

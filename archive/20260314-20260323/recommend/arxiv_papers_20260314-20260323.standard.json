@@ -1,0 +1,649 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-03-23T08:29:13.074259+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 5,
+    "deep_cap": 6,
+    "deep_selected": 5,
+    "quick_candidates": 33,
+    "quick_skim_target": 11,
+    "quick_selected": 11
+  },
+  "deep_dive": [
+    {
+      "id": "2603.13843v1",
+      "title": "MOGeo: Beyond One-to-One Cross-View Object Geo-localization",
+      "abstract": "Cross-View Object Geo-Localization (CVOGL) aims to locate an object of interest in a query image within a corresponding satellite image. Existing methods typically assume that the query image contains only a single object, which does not align with the complex, multi-object geo-localization requirements in real-world applications, making them unsuitable for practical scenarios. To bridge the gap between the realistic setting and existing task, we propose a new task, called Cross-View Multi-Object Geo-Localization (CVMOGL). To advance the CVMOGL task, we first construct a benchmark, CMLocation, which includes two datasets: CMLocation-V1 and CMLocation-V2. Furthermore, we propose a novel cross-view multi-object geo-localization method, MOGeo, and benchmark it against existing state-of-the-art methods. Extensive experiments are conducted under various application scenarios to validate the effectiveness of our method. The results demonstrate that cross-view object geo-localization in the more realistic setting remains a challenging problem, encouraging further research in this area.",
+      "authors": [
+        "Bo Lv",
+        "Qingwang Zhang",
+        "Le Wu",
+        "Yuanyuan Li",
+        "Yingying Zhu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-03-14T08:54:16+00:00",
+      "link": "https://arxiv.org/pdf/2603.13843v1",
+      "tags": [
+        "keyword:VLM OSM",
+        "query:VLM OSM"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Cross-view multi-object geo-localization using satellite images",
+      "llm_evidence_cn": "利用卫星图像进行跨视图多目标地理定位",
+      "llm_evidence": "利用卫星图像进行跨视图多目标地理定位",
+      "canonical_evidence": "利用卫星图像进行跨视图多目标地理定位",
+      "llm_tldr_en": "MOGeo addresses multi-object geo-localization by matching ground query images to satellite imagery.",
+      "llm_tldr_cn": "MOGeo 通过将地面查询图像与卫星图像匹配，解决了多目标地理定位问题。",
+      "llm_tldr": "MOGeo 通过将地面查询图像与卫星图像匹配，解决了多目标地理定位问题。",
+      "llm_tags": [
+        "query:vlm-osm"
+      ],
+      "matched_query_tag": "query:vlm-osm",
+      "matched_query_text": "Integrating OpenStreetMap with foundation models for geo localization",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2603.13855v1",
+      "title": "VFM-Loc: Zero-Shot Cross-View Geo-Localization via Aligning Discriminative Visual Hierarchies",
+      "abstract": "Cross-View Geo-Localization (CVGL) in remote sensing aims to locate a drone-view query by matching it to geo-tagged satellite images. Although supervised methods have achieved strong results on closeset benchmarks, they often fail to generalize to unconstrained, real-world scenarios due to severe viewpoint differences and dataset bias. To overcome these limitations, we present VFM-Loc, a training-free framework for zero-shot CVGL that leverages the generalizable visual representations from vision foundational models (VFMs). VFM-Loc identifies and matches discriminative visual clues across different viewpoints through a progressive alignment strategy. First, we design a hierarchical clue extraction mechanism using Generalized Mean pooling and Scale-Weighted RMAC to preserve distinctive visual clues across scales while maintaining hierarchical confidence. Second, we introduce a statistical manifold alignment pipeline based on domain-wise PCA and Orthogonal Procrustes analysis, linearly aligning heterogeneous feature distributions in a shared metric space. Experiments demonstrate that VFM-Loc exhibits strong zero-shot accuracy on standard benchmarks and surpasses supervised methods by over 20% in Recall@1 on the challenging LO-UCV dataset with large oblique angles. This work highlights that principled alignment of pre-trained features can effectively bridge the cross-view gap, establishing a robust and training-free paradigm for real-world CVGL. The relevant code is made available at: https://github.com/DingLei14/VFM-Loc.",
+      "authors": [
+        "Jun Lu",
+        "Zehao Sang",
+        "Haoqi Wei",
+        "Xiangyun Liu",
+        "Kun Zhu",
+        "Haitao Guo",
+        "Zhihui Gong",
+        "Lei Ding"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-03-14T09:23:59+00:00",
+      "link": "https://arxiv.org/pdf/2603.13855v1",
+      "tags": [
+        "keyword:VLM OSM",
+        "query:VLM OSM"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Zero-shot cross-view geo-localization using vision foundational models",
+      "llm_evidence_cn": "利用视觉基础模型进行零样本跨视图地理定位",
+      "llm_evidence": "利用视觉基础模型进行零样本跨视图地理定位",
+      "canonical_evidence": "利用视觉基础模型进行零样本跨视图地理定位",
+      "llm_tldr_en": "VFM-Loc uses vision foundation models for zero-shot cross-view geo-localization via visual hierarchy alignment.",
+      "llm_tldr_cn": "VFM-Loc利用视觉基础模型，通过视觉层级对齐实现零样本跨视图地理定位。",
+      "llm_tldr": "VFM-Loc利用视觉基础模型，通过视觉层级对齐实现零样本跨视图地理定位。",
+      "llm_tags": [
+        "query:vlm-osm:composite"
+      ],
+      "matched_query_tag": "query:vlm-osm:composite",
+      "matched_query_text": "Papers central to 基于VLM的基于OSM的定位方法, especially work that connects or combines: L; n; Vision-Language Models for visual localization; VLM based visual localization using OpenStreetMap data; Cross modal vision language models for map based positioning; Integrating OpenStreetMap with foundation models for geo localization; Semantic matching between camera images and OSM vector maps.",
+      "matched_requirement_id": "req-composite-vlm-osm",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2603.18002v1",
+      "title": "Loc3R-VLM: Language-based Localization and 3D Reasoning with Vision-Language Models",
+      "abstract": "Multimodal Large Language Models (MLLMs) have made impressive progress in connecting vision and language, but they still struggle with spatial understanding and viewpoint-aware reasoning. Recent efforts aim to augment the input representations with geometric cues rather than explicitly teaching models to reason in 3D space. We introduce Loc3R-VLM, a framework that equips 2D Vision-Language Models with advanced 3D understanding capabilities from monocular video input. Inspired by human spatial cognition, Loc3R-VLM relies on two joint objectives: global layout reconstruction to build a holistic representation of the scene structure, and explicit situation modeling to anchor egocentric perspective. These objectives provide direct spatial supervision that grounds both perception and language in a 3D context. To ensure geometric consistency and metric-scale alignment, we leverage lightweight camera pose priors extracted from a pre-trained 3D foundation model. Loc3R-VLM achieves state-of-the-art performance in language-based localization and outperforms existing 2D- and video-based approaches on situated and general 3D question-answering benchmarks, demonstrating that our spatial supervision framework enables strong 3D understanding. Project page: https://kevinqu7.github.io/loc3r-vlm",
+      "authors": [
+        "Kevin Qu",
+        "Haozhe Qi",
+        "Mihai Dusmanu",
+        "Mahdi Rad",
+        "Rui Wang",
+        "Marc Pollefeys"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-03-18T17:59:10+00:00",
+      "link": "https://arxiv.org/pdf/2603.18002v1",
+      "tags": [
+        "keyword:VLM OSM",
+        "query:VLM OSM"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Language-based localization and 3D reasoning with VLMs",
+      "llm_evidence_cn": "基于语言的VLM定位与3D推理",
+      "llm_evidence": "基于语言的VLM定位与3D推理",
+      "canonical_evidence": "基于语言的VLM定位与3D推理",
+      "llm_tldr_en": "Equips 2D VLMs with 3D understanding for egocentric localization and scene layout reconstruction.",
+      "llm_tldr_cn": "为2D VLM配备3D理解能力，实现第一人称视角定位与场景布局重建。",
+      "llm_tldr": "为2D VLM配备3D理解能力，实现第一人称视角定位与场景布局重建。",
+      "llm_tags": [
+        "query:vlm-osm"
+      ],
+      "matched_query_tag": "query:vlm-osm",
+      "matched_query_text": "Vision-Language Models for visual localization",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2603.19609v1",
+      "title": "LoD-Loc v3: Generalized Aerial Localization in Dense Cities using Instance Silhouette Alignment",
+      "abstract": "We present LoD-Loc v3, a novel method for generalized aerial visual localization in dense urban environments. While prior work LoD-Loc v2 achieves localization through semantic building silhouette alignment with low-detail city models, it suffers from two key limitations: poor cross-scene generalization and frequent failure in dense building scenes. Our method addresses these challenges through two key innovations. First, we develop a new synthetic data generation pipeline that produces InsLoD-Loc - the largest instance segmentation dataset for aerial imagery to date, comprising 100k images with precise instance building annotations. This enables trained models to exhibit remarkable zero-shot generalization capability. Second, we reformulate the localization paradigm by shifting from semantic to instance silhouette alignment, which significantly reduces pose estimation ambiguity in dense scenes. Extensive experiments demonstrate that LoD-Loc v3 outperforms existing state-of-the-art (SOTA) baselines, achieving superior performance in both cross-scene and dense urban scenarios with a large margin. The project is available at https://nudt-sawlab.github.io/LoD-Locv3/.",
+      "authors": [
+        "Shuaibang Peng",
+        "Juelin Zhu",
+        "Xia Li",
+        "Kun Yang",
+        "Maojun Zhang",
+        "Yu Liu",
+        "Shen Yan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.RO"
+      ],
+      "published": "2026-03-20T03:27:39+00:00",
+      "link": "https://arxiv.org/pdf/2603.19609v1",
+      "tags": [
+        "keyword:VLM OSM",
+        "query:VLM OSM"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Aerial localization via semantic building silhouette alignment",
+      "llm_evidence_cn": "通过语义建筑轮廓对齐进行航空定位",
+      "llm_evidence": "通过语义建筑轮廓对齐进行航空定位",
+      "canonical_evidence": "通过语义建筑轮廓对齐进行航空定位",
+      "llm_tldr_en": "A generalized aerial localization method using instance silhouette alignment with city models.",
+      "llm_tldr_cn": "一种通过实例轮廓与城市模型对齐实现的通用航空视觉定位方法。",
+      "llm_tldr": "一种通过实例轮廓与城市模型对齐实现的通用航空视觉定位方法。",
+      "llm_tags": [
+        "query:vlm-osm"
+      ],
+      "matched_query_tag": "query:vlm-osm",
+      "matched_query_text": "Semantic matching between camera images and OSM vector maps",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2603.14609v1",
+      "title": "GroundSet: A Cadastral-Grounded Dataset for Spatial Understanding with Vector Data",
+      "abstract": "Precise spatial understanding in Earth Observation is essential for translating raw aerial imagery into actionable insights for critical applications like urban planning, environmental monitoring and disaster management. However, Multimodal Large Language Models exhibit critical deficiencies in fine-grained spatial understanding within Remote Sensing, primarily due to a reliance on limited or repurposed legacy datasets. To bridge this gap, we introduce a large-scale dataset grounded in verifiable cadastral vector data, comprising 3.8 million annotated objects across 510k high-resolution images with 135 granular semantic categories. We validate this resource through a comprehensive instruction-tuning benchmark spanning seven spatial reasoning tasks. Our evaluation establishes a robust baseline using a standard LLaVA architecture. We show that while current RS-specialized and commercial models (e.g., Gemini) struggle in zero-shot settings, high-fidelity supervision effectively bridges this gap, enabling standard architectures to master fine-grained spatial grounding without complex architectural modifications.",
+      "authors": [
+        "Roger Ferrod",
+        "Maël Lecene",
+        "Krishna Sapkota",
+        "George Leifman",
+        "Vered Silverman",
+        "Genady Beryozkin",
+        "Sylvain Lobry"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-03-15T21:11:40+00:00",
+      "link": "https://arxiv.org/pdf/2603.14609v1",
+      "tags": [
+        "keyword:VLM OSM",
+        "query:VLM OSM"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "spatial understanding with vector data and remote sensing",
+      "llm_evidence_cn": "利用矢量数据和遥感进行空间理解",
+      "llm_evidence": "利用矢量数据和遥感进行空间理解",
+      "canonical_evidence": "利用矢量数据和遥感进行空间理解",
+      "llm_tldr_en": "Introduces a large-scale dataset grounded in cadastral vector data for fine-grained spatial reasoning in RS.",
+      "llm_tldr_cn": "引入了一个基于地籍矢量数据的规模化数据集，用于遥感中的细粒度空间推理。",
+      "llm_tldr": "引入了一个基于地籍矢量数据的规模化数据集，用于遥感中的细粒度空间推理。",
+      "llm_tags": [
+        "query:vlm-osm:composite"
+      ],
+      "matched_query_tag": "query:vlm-osm:composite",
+      "matched_query_text": "Papers central to 基于VLM的基于OSM的定位方法, especially work that connects or combines: L; n; Vision-Language Models for visual localization; VLM based visual localization using OpenStreetMap data; Cross modal vision language models for map based positioning; Integrating OpenStreetMap with foundation models for geo localization; Semantic matching between camera images and OSM vector maps.",
+      "matched_requirement_id": "req-composite-vlm-osm",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2603.13740v1",
+      "title": "Sky2Ground: A Benchmark for Site Modeling under Varying Altitude",
+      "abstract": "We introduce Sky2Ground, a three-view dataset designed for varying altitude camera localization, correspondence learning, and reconstruction. The dataset combines structured synthetic imagery with real, in-the-wild images, providing both controlled multi-view geometry and realistic scene noise. Each of the 51 sites contains thousands of satellite, aerial, and ground images spanning wide altitude ranges and nearly orthogonal viewing angles, enabling rigorous evaluation across global-to-local contexts. We benchmark state of the art pose estimation models, including MASt3R, DUSt3R, Map Anything, and VGGT, and observe that the use of satellite imagery often degrades performance, highlighting the challenges under large altitude variations. We also examine reconstruction methods, highlighting the challenges introduced by sparse geometric overlap, varying perspectives, and the use of real imagery, which often introduces noise and reduces rendering quality. To address some of these challenges, we propose SkyNet, a model which enhances cross-view consistency when incorporating satellite imagery with a curriculum-based training strategy to progressively incorporate more satellite views. SkyNet significantly strengthens multi-view alignment and outperforms existing methods by 9.6% on RRA@5 and 18.1% on RTA@5 in terms of absolute performance. Sky2Ground and SkyNet together establish a comprehensive testbed and baseline for advancing large-scale, multi-altitude 3D perception and generalizable camera localization. Code and models will be released publicly for future research.",
+      "authors": [
+        "Zengyan Wang",
+        "Sirshapan Mitra",
+        "Rajat Modi",
+        "Grace Lim",
+        "Yogesh Rawat"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-03-14T03:59:19+00:00",
+      "link": "https://arxiv.org/pdf/2603.13740v1",
+      "tags": [
+        "keyword:VLM OSM",
+        "query:VLM OSM"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Satellite and ground image localization benchmark",
+      "llm_evidence_cn": "卫星与地面图像定位基准",
+      "llm_evidence": "卫星与地面图像定位基准",
+      "canonical_evidence": "卫星与地面图像定位基准",
+      "llm_tldr_en": "A benchmark for camera localization across varying altitudes using satellite and ground imagery.",
+      "llm_tldr_cn": "一个利用卫星和地面图像进行跨高度相机定位和站点建模的基准数据集。",
+      "llm_tldr": "一个利用卫星和地面图像进行跨高度相机定位和站点建模的基准数据集。",
+      "llm_tags": [
+        "query:vlm-osm"
+      ],
+      "matched_query_tag": "query:vlm-osm",
+      "matched_query_text": "Integrating OpenStreetMap with foundation models for geo localization",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2603.13833v1",
+      "title": "ImagiNav: Scalable Embodied Navigation via Generative Visual Prediction and Inverse Dynamics",
+      "abstract": "Enabling robots to navigate open-world environments via natural language is critical for general-purpose autonomy. Yet, Vision-Language Navigation has relied on end-to-end policies trained on expensive, embodiment-specific robot data. While recent foundation models trained on vast simulation data show promise, the challenge of scaling and generalizing due to the limited scene diversity and visual fidelity in simulation persists. To address this gap, we propose ImagiNav, a novel modular paradigm that decouples visual planning from robot actuation, enabling the direct utilization of diverse in-the-wild navigation videos. Our framework operates as a hierarchy: a Vision-Language Model first decomposes instructions into textual subgoals; a finetuned generative video model then imagines the future video trajectory towards that subgoal; finally, an inverse dynamics model extracts the trajectory from the imagined video, which can then be tracked via a low-level controller. We additionally develop a scalable data pipeline of in-the-wild navigation videos auto-labeled via inverse dynamics and a pretrained Vision-Language Model. ImagiNav demonstrates strong zero-shot transfer to robot navigation without requiring robot demonstrations, paving the way for generalist robots that learn navigation directly from unlabeled, open-world data.",
+      "authors": [
+        "Jie Chen",
+        "Yuxin Cai",
+        "Yizhuo Wang",
+        "Ruofei Bai",
+        "Yuhong Cao",
+        "Jun Li",
+        "Yau Wei Yun",
+        "Guillaume Sartoretti"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-03-14T08:34:02+00:00",
+      "link": "https://arxiv.org/pdf/2603.13833v1",
+      "tags": [
+        "keyword:VLM OSM",
+        "query:VLM OSM"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Vision-Language Model for decomposing navigation instructions into subgoals",
+      "llm_evidence_cn": "使用视觉语言模型将导航指令分解为子目标",
+      "llm_evidence": "使用视觉语言模型将导航指令分解为子目标",
+      "canonical_evidence": "使用视觉语言模型将导航指令分解为子目标",
+      "llm_tldr_en": "ImagiNav decouples visual planning from robot actuation using VLMs for scalable open-world navigation.",
+      "llm_tldr_cn": "ImagiNav通过VLM将视觉规划与机器人执行解耦，实现可扩展的开放世界导航。",
+      "llm_tldr": "ImagiNav通过VLM将视觉规划与机器人执行解耦，实现可扩展的开放世界导航。",
+      "llm_tags": [
+        "query:vlm-osm"
+      ],
+      "matched_query_tag": "query:vlm-osm",
+      "matched_query_text": "Vision-Language Models for visual localization",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2603.13917v1",
+      "title": "Evaluation of Visual Place Recognition Methods for Image Pair Retrieval in 3D Vision and Robotics",
+      "abstract": "Visual Place Recognition (VPR) is a core component in computer vision, typically formulated as an image retrieval task for localization, mapping, and navigation. In this work, we instead study VPR as an image pair retrieval front-end for registration pipelines, where the goal is to find top-matching image pairs between two disjoint image sets for downstream tasks such as scene registration, SLAM, and Structure-from-Motion. We comparatively evaluate state-of-the-art VPR families - NetVLAD-style baselines, classification-based global descriptors (CosPlace, EigenPlaces), feature-mixing (MixVPR), and foundation-model-driven methods (AnyLoc, SALAD, MegaLoc) - on three challenging datasets: object-centric outdoor scenes (Tanks and Temples), indoor RGB-D scans (ScanNet-GS), and autonomous-driving sequences (KITTI). We show that modern global descriptor approaches are increasingly suitable as off-the-shelf image pair retrieval modules in challenging scenarios including perceptual aliasing and incomplete sequences, while exhibiting clear, domain-dependent strengths and weaknesses that are critical when choosing VPR components for robust mapping and registration.",
+      "authors": [
+        "Dennis Haitz",
+        "Athradi Shritish Shetty",
+        "Michael Weinmann",
+        "Markus Ulrich"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-03-14T12:16:31+00:00",
+      "link": "https://arxiv.org/pdf/2603.13917v1",
+      "tags": [
+        "keyword:VLM OSM",
+        "query:VLM OSM"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Evaluation of foundation-model-driven methods for visual place recognition",
+      "llm_evidence_cn": "评估基于基础模型的视觉地点识别方法",
+      "llm_evidence": "评估基于基础模型的视觉地点识别方法",
+      "canonical_evidence": "评估基于基础模型的视觉地点识别方法",
+      "llm_tldr_en": "This paper evaluates state-of-the-art VPR methods, including foundation models, for image pair retrieval.",
+      "llm_tldr_cn": "本文评估了包括基础模型在内的最先进VPR方法，用于图像对检索。",
+      "llm_tldr": "本文评估了包括基础模型在内的最先进VPR方法，用于图像对检索。",
+      "llm_tags": [
+        "query:vlm-osm"
+      ],
+      "matched_query_tag": "query:vlm-osm",
+      "matched_query_text": "Vision-Language Models for visual localization",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2603.14349v1",
+      "title": "Learning Image-Text Matching with Optimal Partial Transport",
+      "abstract": "Cross-modal matching, a fundamental task in bridging vision and language, has recently garnered substantial research interest. Despite the development of numerous methods aimed at quantifying the semantic relatedness between image-text pairs, these methods often fall short of achieving both outstanding performance and high efficiency. In this paper, we propose the crOss-Modal sInkhorn maTching (OMIT) network as an effective solution to effectively improving performance while maintaining efficiency. Rooted in the theoretical foundations of Optimal Transport, OMIT harnesses the capabilities of Cross-modal Mover's Distance to precisely compute the similarity between fine-grained visual and textual fragments, utilizing Sinkhorn iterations for efficient approximation. To further alleviate the issue of redundant alignments, we seamlessly integrate partial matching into OMIT, leveraging local-to-global similarities to eliminate the interference of irrelevant fragments. We conduct extensive evaluations of OMIT on two benchmark image-text retrieval datasets, namely Flickr30K and MS-COCO. The superior performance achieved by OMIT on both datasets unequivocally demonstrates its effectiveness in cross-modal matching. Furthermore, through comprehensive visualization analysis, we elucidate OMIT's inherent tendency towards focal matching, thereby shedding light on its efficacy. Our code is publicly available at https://github.com/ppanzx/OMIT.",
+      "authors": [
+        "Zhengxin Pan",
+        "Haishuai Wang",
+        "Fangyu Wu",
+        "Bailing Zhang",
+        "Jiajun Bu",
+        "Hongyang Chen"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR"
+      ],
+      "published": "2026-03-15T12:31:19+00:00",
+      "link": "https://arxiv.org/pdf/2603.14349v1",
+      "tags": [
+        "keyword:VLM OSM",
+        "query:VLM OSM"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Cross-modal matching between vision and language",
+      "llm_evidence_cn": "视觉与语言之间的跨模态匹配",
+      "llm_evidence": "视觉与语言之间的跨模态匹配",
+      "canonical_evidence": "视觉与语言之间的跨模态匹配",
+      "llm_tldr_en": "Proposes an efficient cross-modal matching network using Optimal Transport for image-text similarity.",
+      "llm_tldr_cn": "提出一种基于最优传输的高效跨模态匹配网络，用于图像-文本相似度计算。",
+      "llm_tldr": "提出一种基于最优传输的高效跨模态匹配网络，用于图像-文本相似度计算。",
+      "llm_tags": [
+        "query:vlm-osm"
+      ],
+      "matched_query_tag": "query:vlm-osm",
+      "matched_query_text": "Cross modal vision language models for map based positioning",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2603.14276v1",
+      "title": "All-day Multi-scenes Lifelong Vision-and-Language Navigation with Tucker Adaptation",
+      "abstract": "Deploying vision-and-language navigation (VLN) agents requires adaptation across diverse scenes and environments, but fine-tuning on a specific scenario often causes catastrophic forgetting in others, which severely limits flexible long-term deployment. We formalize this challenge as the all-day multi-scenes lifelong VLN (AML-VLN) problem. Existing parameter-efficient adapters (e.g., LoRA and its variants) are limited by their two-dimensional matrix form, which fails to capture the multi-hierarchical navigation knowledge spanning multiple scenes and environments. To address this, we propose Tucker Adaptation (TuKA), which represents the multi-hierarchical navigation knowledge as a high-order tensor and leverages Tucker decomposition to decouple the knowledge into shared subspaces and scenario-specific experts. We further introduce a decoupled knowledge incremental learning strategy to consolidate shared subspaces while constraining specific experts for decoupled lifelong learning. Building on TuKA, we also develop a VLN agent named AlldayWalker, which continually learns across multiple navigation scenarios, achieving all-day multi-scenes navigation. Extensive experiments show that AlldayWalker consistently outperforms state-of-the-art baselines.",
+      "authors": [
+        "Xudong Wang",
+        "Gan Li",
+        "Zhiyu Liu",
+        "Yao Wang",
+        "Lianqing Liu",
+        "Zhi Han"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-03-15T08:18:54+00:00",
+      "link": "https://arxiv.org/pdf/2603.14276v1",
+      "tags": [
+        "keyword:VLM OSM",
+        "query:VLM OSM"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Vision-and-language navigation across diverse scenes",
+      "llm_evidence_cn": "跨场景的视觉语言导航",
+      "llm_evidence": "跨场景的视觉语言导航",
+      "canonical_evidence": "跨场景的视觉语言导航",
+      "llm_tldr_en": "Proposes Tucker Adaptation for lifelong vision-and-language navigation across multiple environments.",
+      "llm_tldr_cn": "提出Tucker适配方法，解决多场景终身视觉语言导航中的灾难性遗忘问题。",
+      "llm_tldr": "提出Tucker适配方法，解决多场景终身视觉语言导航中的灾难性遗忘问题。",
+      "llm_tags": [
+        "query:vlm-osm"
+      ],
+      "matched_query_tag": "query:vlm-osm",
+      "matched_query_text": "Vision-Language Models for visual localization",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2603.14786v1",
+      "title": "CORAL: COntextual Reasoning And Local Planning in A Hierarchical VLM Framework for Underwater Monitoring",
+      "abstract": "Oyster reefs are critical ecosystem species that sustain biodiversity, filter water, and protect coastlines, yet they continue to decline globally. Restoring these ecosystems requires regular underwater monitoring to assess reef health, a task that remains costly, hazardous, and limited when performed by human divers. Autonomous underwater vehicles (AUVs) offer a promising alternative, but existing AUVs rely on geometry-based navigation that cannot interpret scene semantics. Recent vision-language models (VLMs) enable semantic reasoning for intelligent exploration, but existing VLM-driven systems adopt an end-to-end paradigm, introducing three key limitations. First, these systems require the VLM to generate every navigation decision, forcing frequent waits for inference. Second, VLMs cannot model robot dynamics, causing collisions in cluttered environments. Third, limited self-correction allows small deviations to accumulate into large path errors. To address these limitations, we propose CORAL, a framework that decouples high-level semantic reasoning from low-level reactive control. The VLM provides high-level exploration guidance by selecting waypoints, while a dynamics-based planner handles low-level collision-free execution. A geometric verification module validates waypoints and triggers replanning when needed. Compared with the previous state-of-the-art, CORAL improves coverage by 14.28% percentage points, or 17.85% relatively, reduces collisions by 100%, and requires 57% fewer VLM calls.",
+      "authors": [
+        "Zhenqi Wu",
+        "Yuanjie Lu",
+        "Xuesu Xiao",
+        "Xiaomin Lin"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-03-16T03:35:08+00:00",
+      "link": "https://arxiv.org/pdf/2603.14786v1",
+      "tags": [
+        "keyword:VLM OSM",
+        "query:VLM OSM"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "hierarchical VLM framework for semantic reasoning and navigation",
+      "llm_evidence_cn": "用于语义推理和导航的分层VLM框架",
+      "llm_evidence": "用于语义推理和导航的分层VLM框架",
+      "canonical_evidence": "用于语义推理和导航的分层VLM框架",
+      "llm_tldr_en": "Uses a hierarchical VLM framework for semantic underwater monitoring and navigation.",
+      "llm_tldr_cn": "采用分层VLM框架实现水下监测中的语义推理与导航。",
+      "llm_tldr": "采用分层VLM框架实现水下监测中的语义推理与导航。",
+      "llm_tags": [
+        "query:vlm-osm"
+      ],
+      "matched_query_tag": "query:vlm-osm",
+      "matched_query_text": "Vision-Language Models for visual localization",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2603.14856v1",
+      "title": "From Horizontal to Rotated: Cross-View Object Geo-Localization with Orientation Awareness",
+      "abstract": "Cross-View object geo-localization (CVOGL) aims to precisely determine the geographic coordinates of a query object from a ground or drone perspective by referencing a satellite map. Segmentation-based approaches offer high precision but require prohibitively expensive pixel-level annotations, whereas more economical detection-based methods suffer from lower accuracy. This performance disparity in detection is primarily caused by two factors: the poor geometric fit of Horizontal Bounding Boxes (HBoxes) for oriented objects and the degradation in precision due to feature map scaling. Motivated by these, we propose leveraging Rotated Bounding Boxes (RBoxes) as a natural extension of the detection-based paradigm. RBoxes provide a much tighter geometric fit to oriented objects. Building on this, we introduce OSGeo, a novel geo-localization framework, meticulously designed with a multi-scale perception module and an orientation-sensitive head to accurately regress RBoxes. To support this scheme, we also construct and release CVOGL-R, the first dataset with precise RBox annotations for CVOGL. Extensive experiments demonstrate that our OSGeo achieves state-of-the-art performance, consistently matching or even surpassing the accuracy of leading segmentation-based methods but with an annotation cost that is over an order of magnitude lower.",
+      "authors": [
+        "Chenlin Fu",
+        "Ao Gong",
+        "Yingying Zhu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-03-16T05:56:06+00:00",
+      "link": "https://arxiv.org/pdf/2603.14856v1",
+      "tags": [
+        "keyword:VLM OSM",
+        "query:VLM OSM"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Cross-view object geo-localization using satellite maps",
+      "llm_evidence_cn": "利用卫星地图进行跨视图物体地理定位",
+      "llm_evidence": "利用卫星地图进行跨视图物体地理定位",
+      "canonical_evidence": "利用卫星地图进行跨视图物体地理定位",
+      "llm_tldr_en": "Improves cross-view geo-localization accuracy using rotated bounding boxes for orientation awareness.",
+      "llm_tldr_cn": "利用旋转边界框增强方向感知，提高跨视图地理定位的精度。",
+      "llm_tldr": "利用旋转边界框增强方向感知，提高跨视图地理定位的精度。",
+      "llm_tags": [
+        "query:vlm-osm"
+      ],
+      "matched_query_tag": "query:vlm-osm",
+      "matched_query_text": "Integrating OpenStreetMap with foundation models for geo localization",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2603.14807v1",
+      "title": "HiMemVLN: Enhancing Reliability of Open-Source Zero-Shot Vision-and-Language Navigation with Hierarchical Memory System",
+      "abstract": "LLM-based agents have demonstrated impressive zero-shot performance in vision-language navigation (VLN) tasks. However, most zero-shot methods primarily rely on closed-source LLMs as navigators, which face challenges related to high token costs and potential data leakage risks. Recent efforts have attempted to address this by using open-source LLMs combined with a spatiotemporal CoT framework, but they still fall far short compared to closed-source models. In this work, we identify a critical issue, Navigation Amnesia, through a detailed analysis of the navigation process. This issue leads to navigation failures and amplifies the gap between open-source and closed-source methods. To address this, we propose HiMemVLN, which incorporates a Hierarchical Memory System into a multimodal large model to enhance visual perception recall and long-term localization, mitigating the amnesia issue and improving the agent's navigation performance. Extensive experiments in both simulated and real-world environments demonstrate that HiMemVLN achieves nearly twice the performance of the open-source state-of-the-art method. The code is available at https://github.com/lvkailin0118/HiMemVLN.",
+      "authors": [
+        "Kailin Lyu",
+        "Kangyi Wu",
+        "Pengna Li",
+        "Xiuyu Hu",
+        "Qingyi Si",
+        "Cui Miao",
+        "Ning Yang",
+        "Zihang Wang",
+        "Long Xiao",
+        "Lianyu Hu",
+        "Jingyuan Sun",
+        "Ce Hao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-03-16T04:23:29+00:00",
+      "link": "https://arxiv.org/pdf/2603.14807v1",
+      "tags": [
+        "keyword:VLM OSM",
+        "query:VLM OSM"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Vision-and-Language Navigation with memory",
+      "llm_evidence_cn": "带记忆的视觉语言导航",
+      "llm_evidence": "带记忆的视觉语言导航",
+      "canonical_evidence": "带记忆的视觉语言导航",
+      "llm_tldr_en": "Enhances zero-shot vision-language navigation using a hierarchical memory system to prevent amnesia.",
+      "llm_tldr_cn": "通过分层记忆系统增强零样本视觉语言导航，解决导航遗忘问题。",
+      "llm_tldr": "通过分层记忆系统增强零样本视觉语言导航，解决导航遗忘问题。",
+      "llm_tags": [
+        "query:vlm-osm"
+      ],
+      "matched_query_tag": "query:vlm-osm",
+      "matched_query_text": "Vision-Language Models for visual localization",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2603.16616v1",
+      "title": "ACPV-Net: All-Class Polygonal Vectorization for Seamless Vector Map Generation from Aerial Imagery",
+      "abstract": "We tackle the problem of generating a complete vector map representation from aerial imagery in a single run: producing polygons for all land-cover classes with shared boundaries and without gaps or overlaps. Existing polygonization methods are typically class-specific; extending them to multiple classes via per-class runs commonly leads to topological inconsistencies, such as duplicated edges, gaps, and overlaps. We formalize this new task as All-Class Polygonal Vectorization (ACPV) and release the first public benchmark, Deventer-512, with standardized metrics jointly evaluating semantic fidelity, geometric accuracy, vertex efficiency, per-class topological fidelity and global topological consistency. To realize ACPV, we propose ACPV-Net, a unified framework introducing a novel Semantically Supervised Conditioning (SSC) mechanism coupling semantic perception with geometric primitive generation, along with a topological reconstruction that enforces shared-edge consistency by design. While enforcing such strict topological constraints, ACPV-Net surpasses all class-specific baselines in polygon quality across classes on Deventer-512. It also applies to single-class polygonal vectorization without any architectural modification, achieving the best-reported results on WHU-Building. Data, code, and models will be released at: https://github.com/HeinzJiao/ACPV-Net.",
+      "authors": [
+        "Weiqin Jiao",
+        "Hao Cheng",
+        "George Vosselman",
+        "Claudio Persello"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-03-17T14:55:10+00:00",
+      "link": "https://arxiv.org/pdf/2603.16616v1",
+      "tags": [
+        "keyword:VLM OSM",
+        "query:VLM OSM"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Vector map generation from aerial imagery",
+      "llm_evidence_cn": "从航空影像生成矢量地图",
+      "llm_evidence": "从航空影像生成矢量地图",
+      "canonical_evidence": "从航空影像生成矢量地图",
+      "llm_tldr_en": "A method for generating complete, topologically consistent multi-class vector maps from aerial imagery.",
+      "llm_tldr_cn": "一种从航空影像中生成完整且拓扑一致的多类别矢量地图的方法。",
+      "llm_tldr": "一种从航空影像中生成完整且拓扑一致的多类别矢量地图的方法。",
+      "llm_tags": [
+        "query:vlm-osm"
+      ],
+      "matched_query_tag": "query:vlm-osm",
+      "matched_query_text": "Semantic matching between camera images and OSM vector maps",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2603.16301v1",
+      "title": "OGScene3D: Incremental Open-Vocabulary 3D Gaussian Scene Graph Mapping for Scene Understanding",
+      "abstract": "Open-vocabulary scene understanding is crucial for robotic applications, enabling robots to comprehend complex 3D environmental contexts and supporting various downstream tasks such as navigation and manipulation. However, existing methods require pre-built complete 3D semantic maps to construct scene graphs for scene understanding, which limits their applicability in robotic scenarios where environments are explored incrementally. To address this challenge, we propose OGScene3D, an open-vocabulary scene understanding system that achieves accurate 3D semantic mapping and scene graph construction incrementally. Our system employs a confidence-based Gaussian semantic representation that jointly models semantic predictions and their reliability, enabling robust scene modeling. Building on this representation, we introduce a hierarchical 3D semantic optimization strategy that achieves semantic consistency through local correspondence establishment and global refinement, thereby constructing globally consistent semantic maps. Moreover, we design a long-term global optimization method that leverages temporal memory of historical observations to enhance semantic predictions. By integrating 2D-3D semantic consistency with Gaussian rendering contribution, this method continuously refines the semantic understanding of the entire scene.Furthermore, we develop a progressive graph construction approach that dynamically creates and updates both nodes and semantic relationships, allowing continuous updating of the 3D scene graphs. Extensive experiments on widely used datasets and real-world scenes demonstrate the effectiveness of our OGScene3D on open-vocabulary scene understanding.",
+      "authors": [
+        "Siting Zhu",
+        "Ziyun Lu",
+        "Guangming Wang",
+        "Chenguang Huang",
+        "Yongbo Chen",
+        "I-Ming Chen",
+        "Wolfram Burgard",
+        "Hesheng Wang"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-03-17T09:38:01+00:00",
+      "link": "https://arxiv.org/pdf/2603.16301v1",
+      "tags": [
+        "keyword:VLM OSM",
+        "query:VLM OSM"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Open-vocabulary 3D semantic mapping for scene understanding",
+      "llm_evidence_cn": "用于场景理解的开放词汇3D语义映射",
+      "llm_evidence": "用于场景理解的开放词汇3D语义映射",
+      "canonical_evidence": "用于场景理解的开放词汇3D语义映射",
+      "llm_tldr_en": "Incremental 3D semantic mapping system using open-vocabulary models for robotic environment comprehension.",
+      "llm_tldr_cn": "利用开放词汇模型实现增量式3D语义地图构建，支持机器人环境理解。",
+      "llm_tldr": "利用开放词汇模型实现增量式3D语义地图构建，支持机器人环境理解。",
+      "llm_tags": [
+        "query:vlm-osm"
+      ],
+      "matched_query_tag": "query:vlm-osm",
+      "matched_query_text": "Integrating OpenStreetMap with foundation models for geo localization",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2603.16844v1",
+      "title": "M^3: Dense Matching Meets Multi-View Foundation Models for Monocular Gaussian Splatting SLAM",
+      "abstract": "Streaming reconstruction from uncalibrated monocular video remains challenging, as it requires both high-precision pose estimation and computationally efficient online refinement in dynamic environments. While coupling 3D foundation models with SLAM frameworks is a promising paradigm, a critical bottleneck persists: most multi-view foundation models estimate poses in a feed-forward manner, yielding pixel-level correspondences that lack the requisite precision for rigorous geometric optimization. To address this, we present M^3, which augments the Multi-view foundation model with a dedicated Matching head to facilitate fine-grained dense correspondences and integrates it into a robust Monocular Gaussian Splatting SLAM. M^3 further enhances tracking stability by incorporating dynamic area suppression and cross-inference intrinsic alignment. Extensive experiments on diverse indoor and outdoor benchmarks demonstrate state-of-the-art accuracy in both pose estimation and scene reconstruction. Notably, M^3 reduces ATE RMSE by 64.3% compared to VGGT-SLAM 2.0 and outperforms ARTDECO by 2.11 dB in PSNR on the ScanNet++ dataset.",
+      "authors": [
+        "Kerui Ren",
+        "Guanghao Li",
+        "Changjian Jiang",
+        "Yingxiang Xu",
+        "Tao Lu",
+        "Linning Xu",
+        "Junting Dong",
+        "Jiangmiao Pang",
+        "Mulin Yu",
+        "Bo Dai"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-03-17T17:52:37+00:00",
+      "link": "https://arxiv.org/pdf/2603.16844v1",
+      "tags": [
+        "query:VLM OSM"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Foundation models for pose estimation and SLAM",
+      "llm_evidence_cn": "用于位姿估计和SLAM的基础模型",
+      "llm_evidence": "用于位姿估计和SLAM的基础模型",
+      "canonical_evidence": "用于位姿估计和SLAM的基础模型",
+      "llm_tldr_en": "Integrates multi-view foundation models with a matching head for high-precision monocular SLAM.",
+      "llm_tldr_cn": "将多视图基础模型与匹配头集成，实现高精度的单目Gaussian Splatting SLAM。",
+      "llm_tldr": "将多视图基础模型与匹配头集成，实现高精度的单目Gaussian Splatting SLAM。",
+      "llm_tags": [
+        "query:vlm-osm"
+      ],
+      "matched_query_tag": "query:vlm-osm",
+      "matched_query_text": "Vision-Language Models for visual localization",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
