@@ -25,3 +25,45 @@ subscriptions:
     stage: A
     diff_threshold_pct: 15
   keyword_recall_mode: or
+  intent_profiles:
+    - tag: VLM OSM
+      description: 基于VLM的基于OSM的定位方法
+      enabled: true
+      keywords:
+        - keyword: Radar，Visual
+          keyword_cn: ''
+          query: L
+        - keyword: navigation
+          keyword_cn: ''
+          query: 'n'
+        - keyword: VLM
+          keyword_cn: 视觉语言模型
+          query: Vision-Language Models for visual localization
+        - keyword: OSM localization
+          keyword_cn: 基于osm的定位
+          query: L
+        - keyword: global Localization
+          keyword_cn: 全局定位
+          query: L
+      intent_queries:
+        - query: VLM based visual localization using OpenStreetMap data
+          query_cn: 基于视觉语言模型和OSM数据的视觉定位
+          enabled: true
+          source: manual
+          note: ''
+        - query: Cross modal vision language models for map based positioning
+          query_cn: 用于地图定位的跨模态视觉语言模型
+          enabled: true
+          source: manual
+          note: ''
+        - query: Integrating OpenStreetMap with foundation models for geo localization
+          query_cn: 结合OSM与基础模型进行地理定位
+          enabled: true
+          source: manual
+          note: ''
+        - query: Semantic matching between camera images and OSM vector maps
+          query_cn: 相机图像与OSM矢量地图之间的语义匹配
+          enabled: true
+          source: manual
+          note: ''
+      updated_at: '2026-03-23T08:23:22.085Z'
